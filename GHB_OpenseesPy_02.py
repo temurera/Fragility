@@ -41,6 +41,7 @@ numb = 12
 numEigen = 12
 eigenValues = eigen(numEigen)
 #PI = -np.cos(1.0)
+
 ome=[]
 per = []
 freq = []
@@ -64,4 +65,5 @@ opsplt.plot_modeshape(1, 1000)
 
 #printA('-file','trial.txt')
 
-
+#### Display the active model with node tags only
+opsplt.plot_model("nodes")
