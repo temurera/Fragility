@@ -175,9 +175,41 @@ element('elasticBeamColumn', 101, 1101, 1201,Abeam, Es, Gs, 1, IbeamY, IbeamZ, B
 #                   retained constrained DOF_1 DOF_2 ... DOF_n
 #equalDOF    $nodeR     $nodeC     1     2
 
-uniaxialMaterial('ElasticBilin', matTag, EP1, EP2, epsP2, EN1=EP1, EN2=EP2, epsN2=-epsP2)
+#uniaxialMaterial('ElasticBilin', matTag, EP1, EP2, epsP2, EN1=EP1, EN2=EP2, epsN2=-epsP2)
 
-uniaxialMaterial('ElasticPP', matTag, Es, epsyP, epsyN=epsyP, eps0=0.0)
+#uniaxialMaterial('ElasticPP', matTag, Es, epsyP, epsyN=epsyP, eps0=0.0)
+
+
+
+'''    
+McMy =1.05
+LS =1000.0    
+LK =1000.0  
+LA =1000.0   
+LD =1000.0   
+cS =1.0   
+cK =1.0   
+cA =1.0   
+cD =1.0   
+th_pP =0.025   
+th_pN =0.025   
+th_pcP =0.3   
+th_pcN =0.3   
+ResP =0.4   
+ResN =0.4   
+th_uP =0.4 
+th_uN =0.4 
+DP =1.0 
+DN =1.0
+a_mem = ($n+1.0)*(Mycol_12*(McMy-1.0)) / (Ks_col_1*th_pP) 
+b =  (a_mem)/(1.0+$n*(1.0-$a_mem)) 
+
+uniaxialMaterial('Bilin',3,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
+
+element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID '-dir', 6)
+
+'''
+
 
 
 equalDOF(11, 1101, 1,2,3)
