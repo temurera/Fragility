@@ -120,11 +120,14 @@ LR_BRB=0.55;
 
 # Create All main nodes
 node(1, 0.0, 0.0)
+node(1111, 0.0, 0.0)
 node(2, W_bayX, 0.0)
 
 node(11, 0.0, H_story)
 node(12, W_bayX, H_story)
 
+node(111, 0.0, H_story)
+node(121, W_bayX, H_story)
 
 node(1101, 0.0, H_story)
 node(1201, W_bayX, H_story)
@@ -140,7 +143,7 @@ beamIntegration('HingeRadau', ColIntTag2, colSecTag2,1,colSecTag2, 10,colSecTag2
 #beamIntegration('HingeRadau', tag, secI, lpI, secJ, lpJ, secE)
 
 fix(1, 1, 1, 1)
-fix(2, 1, 1, 1)
+fix(2, 1, 1, 0)
 # Assign geometric transformation
 
 ColTransfTag=1
@@ -149,8 +152,8 @@ BeamTranfTag=2
 geomTransf('Linear', ColTransfTag)
 geomTransf('Linear', BeamTranfTag)
 
-element('forceBeamColumn', 1, 1, 11, ColTransfTag, ColIntTag1, '-mass', 0.0)
-element('forceBeamColumn', 2, 2, 12, ColTransfTag, ColIntTag2, '-mass', 0.0)
+#element('forceBeamColumn', 1, 1, 11, ColTransfTag, ColIntTag1, '-mass', 0.0)
+#element('forceBeamColumn', 2, 2, 12, ColTransfTag, ColIntTag2, '-mass', 0.0)
 #element('elasticBeamColumn', eleTag, *eleNodes, Area, E_mod, G_mod, Jxx, Iy, Iz, transfTag, <'-mass', mass>, <'-cMass'>)
 
 #element('elasticBeamColumn', eleTag, *eleNodes, Area, E_mod, G_mod, Jxx, Iy, Iz, transfTag, <'-mass', mass>, <'-cMass'>)
@@ -160,10 +163,11 @@ element('forceBeamColumn', 2, 2, 12, ColTransfTag, ColIntTag2, '-mass', 0.0)
 
 #element('forceBeamColumn', 101, 1101, 1201, BeamTranfTag, BeamIntTag1, '-mass', 0.0)
 
-#element('elasticBeamColumn', 1, 1, 11,Abeam, Es, Gs, 1, IbeamY, IbeamZ, BeamTranfTag, '-mass', 0.0)
-#element('elasticBeamColumn', 2, 2, 12,Abeam, Es, Gs, 1, IbeamY, IbeamZ, BeamTranfTag, '-mass', 0.0)
+element('elasticBeamColumn', 1, 1111, 11,Abeam, Es, Gs, 1, IbeamY, IbeamZ, BeamTranfTag, '-mass', 0.0)
+element('elasticBeamColumn', 2, 2, 12,Abeam, Es, Gs, 1, IbeamY, IbeamZ, BeamTranfTag, '-mass', 0.0)
 
 element('elasticBeamColumn', 101, 1101, 1201,Abeam, Es, Gs, 1, IbeamY, IbeamZ, BeamTranfTag, '-mass', 0.0)
+
 
 
 # Create the zero length element
@@ -181,7 +185,12 @@ element('elasticBeamColumn', 101, 1101, 1201,Abeam, Es, Gs, 1, IbeamY, IbeamZ, B
 
 
 
-'''    
+n= 10 #stiffness multiplier for rotational spring
+
+Mycol_12 = 203
+Ks_col_1 = Es
+Ks_col_2 = Es
+
 McMy =1.05
 LS =1000.0    
 LK =1000.0  
@@ -201,19 +210,29 @@ th_uP =0.4
 th_uN =0.4 
 DP =1.0 
 DN =1.0
-a_mem = ($n+1.0)*(Mycol_12*(McMy-1.0)) / (Ks_col_1*th_pP) 
-b =  (a_mem)/(1.0+$n*(1.0-$a_mem)) 
-
-uniaxialMaterial('Bilin',3,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
-
-element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID '-dir', 6)
-
-'''
+a_mem = (n+1.0)*(Mycol_12*(McMy-1.0))/(Ks_col_1*th_pP) 
+b =  (a_mem)/(1.0+n*(1.0-a_mem)) 
+n= 10 #stiffness multiplier for rotational spring
 
 
+def rotSpring2DModIKModel(eleID, nodeR, nodeC, K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN):
+    #uniaxialMaterial('Bilin',eleID,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
+    uniaxialMaterial('ElasticBilin',eleID,K, 0.01*K,0.001)
+    element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID, '-dir', 3)
+    equalDOF(nodeR, nodeC, 1, 2)
+    return
 
-equalDOF(11, 1101, 1,2,3)
-equalDOF(12, 1201, 1,2,3)
+
+
+rotSpring2DModIKModel(91, 11, 111, Ks_col_2, b, b, Mycol_12, -Mycol_12, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
+rotSpring2DModIKModel(92, 12, 121, Ks_col_2, b, b, Mycol_12, -Mycol_12, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
+rotSpring2DModIKModel(93, 1, 1111, Ks_col_2, b, b, Mycol_12, -Mycol_12, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
+
+
+
+equalDOF(111, 1101, 1,2,3)
+equalDOF(121, 1201, 1,2,3)
+#equalDOF(1111, 1201, 1,2,3)
 
 timeSeries("Linear", 1)
 
@@ -285,8 +304,11 @@ if(AnalysisType=="Pushover"):
     
     #recorder('Element', '-file', "PushoverOut/BeamStress.out", '-closeOnWrite', '-ele', 102, 'section', '4', 'fiber','1', 'stressStrain')
     recorder('Node', '-file', "PushoverOut02/Node2React.out", '-closeOnWrite', '-node', 2, '-dof',1, 'reaction')
-    recorder('Node', '-file', "PushoverOut02/Node1101_d.out", '-closeOnWrite', '-node', 1101, '-dof',3, 'disp')
-    recorder('Node', '-file', "PushoverOut02/Node1101_r.out", '-closeOnWrite', '-node', 1101, '-dof',3, 'reaction')
+    recorder('Node', '-file', "PushoverOut02/Node1101_d.out", '-closeOnWrite', '-node', 1111, '-dof',3, 'disp')
+    recorder('Node', '-file', "PushoverOut02/Node1_r.out", '-closeOnWrite', '-node', 1, '-dof',3, 'reaction')
+    recorder('Node', '-file', "PushoverOut02/Node1101_TWO.out", '-closeOnWrite', '-node', 1111, '-dof',3, 'disp')
+    
+    
     recorder('Node', '-file', "PushoverOut02/Node1101_TWO.out", '-closeOnWrite', '-node', 1101, '-dof',3, 'disp')
 
 
@@ -320,13 +342,16 @@ disp_2_1101_= pd.DataFrame(pd.read_csv('PushoverOut02/Node1101_TWO.out',delimite
 
 disp1101 = pd.DataFrame(pd.read_csv('PushoverOut02/Node1101_d.out',delimiter=" ", header = None)).to_numpy() 
 reac1101 = pd.DataFrame(pd.read_csv('PushoverOut02/Node1101_r.out',delimiter=" ", header = None)).to_numpy() 
-
+reac1 = pd.DataFrame(pd.read_csv('PushoverOut02/Node1_r.out',delimiter=" ", header = None)).to_numpy() 
 
 plt.figure(figsize=(12, 9))
 
-plt.plot(disp1101,reac1101) 
+plt.plot(-disp1101,reac1) 
+plt.title('Moment rotation')
 
+#plt.figure(figsize=(12, 9))
 
+#opsv.plot_defo()
 #plt.figure(figsize=(12, 9))
 
 #plt.plot(disp_2_1101_) 
