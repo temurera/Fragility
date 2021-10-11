@@ -67,3 +67,5 @@ opsplt.plot_modeshape(1, 1000)
 
 #### Display the active model with node tags only
 opsplt.plot_model("nodes")
+plt.xlim([-100, -60])
+plt.ylim([-10, 10])
