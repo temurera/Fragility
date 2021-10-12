@@ -54,17 +54,17 @@ for eig in range(len(eigenValues)):
     freq.append(1/per[-1])
 #eigen(solver='-fullGenLapack', numb)
 
-recorder('Node', '-file', 'MODAL_Node_NodeEigen_EigenVec_1_PY.out', '-time','-nodeRange', 1, 1001, '-dof', 1, 2, 3, 4, 5, 6, 'eigen1')
+recorder('Node', '-file', 'MODAL_Node_NodeEigen_EigenVec_1_PY.out', '-time','-nodeRange', 1, 1000001, '-dof', 1, 2, 3, 4, 5, 6, 'eigen1')
 record()
 #create nodes
 #exec(open("Elements.py").read())
 #opsplt.plot_model()  # command from Get_Rendering module
 #opsv.plot_model()  # command from ops_vis module
 
-opsplt.plot_modeshape(1, 1000)
+opsplt.plot_modeshape(1, 500)
 plt.savefig('1st_ModeShape.pdf') 
 #plot_modeshape(3, 3000)
-plt.xlim([-150, 50])
+plt.xlim([80, 200])
 plt.ylim([-40, 40])
 
 
@@ -73,8 +73,9 @@ plt.ylim([-40, 40])
 #printA('-file','trial.txt')
 
 #### Display the active model with node tags only
-opsplt.plot_model('nodes')
+opsplt.plot_model("nodes")
 #plt.xlim([-90, -65])
 #plt.ylim([-10, 10])
-
+plt.xlim([360, 390])
+plt.ylim([-40, 40])
  
