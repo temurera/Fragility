@@ -27,9 +27,9 @@ exec(open("./Beam_Int.py").read())
 exec(open("./Material_02.py").read())
 exec(open("./Boundary.py").read())
 exec(open("./Gt.py").read())
-exec(open("./Elements_1.py").read())
+exec(open("./Elements_2.py").read())
 
-exec(open("./Soil_Springs.py").read())
+exec(open("./Soil_Springs_02.py").read())
 exec(open("./Element_under_soil_bc.py").read())
 
 constraints('Transformation')
@@ -61,11 +61,11 @@ record()
 #opsplt.plot_model()  # command from Get_Rendering module
 #opsv.plot_model()  # command from ops_vis module
 
-opsplt.plot_modeshape(1, 500)
+opsplt.plot_modeshape(1, 100)
 plt.savefig('1st_ModeShape.pdf') 
 #plot_modeshape(3, 3000)
 plt.xlim([80, 200])
-plt.ylim([-40, 40])
+plt.ylim([-10, 10])
 
 
 #analyze
@@ -73,9 +73,9 @@ plt.ylim([-40, 40])
 #printA('-file','trial.txt')
 
 #### Display the active model with node tags only
-opsplt.plot_model("nodes")
+opsplt.plot_model()
 #plt.xlim([-90, -65])
 #plt.ylim([-10, 10])
-plt.xlim([360, 390])
-plt.ylim([-40, 40])
+plt.xlim([340, 380])
+plt.ylim([-10, 10])
  
