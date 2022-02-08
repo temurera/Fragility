@@ -61,7 +61,7 @@ record()
 #opsplt.plot_model()  # command from Get_Rendering module
 #opsv.plot_model()  # command from ops_vis module
 
-opsplt.plot_modeshape(1, 100)
+opsplt.plot_modeshape(1, 1000)
 plt.savefig('1st_ModeShape.pdf') 
 #plot_modeshape(3, 3000)
 plt.xlim([80, 200])
@@ -69,13 +69,13 @@ plt.ylim([-10, 10])
 
 
 #analyze
-
+ 
 #printA('-file','trial.txt')
 
 #### Display the active model with node tags only
 opsplt.plot_model()
 #plt.xlim([-90, -65])
 #plt.ylim([-10, 10])
-plt.xlim([340, 380])
+plt.xlim([90, 120])
 plt.ylim([-10, 10])
  
