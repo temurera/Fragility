@@ -38,8 +38,8 @@ section('Elastic', 104, 200000000, 1.08, 0.51, 0.51, 76923080, 1.933, 0.8074527,
 #   beam Integration
 beamIntegration('Lobatto',400,104,5)
 
-exec(open("./Soil_Springs_02_trial.py").read())
-exec(open("./Element_under_soil_bc_02_Trial_Disp.py").read())
+exec(open("./Soil_Springs_03_trial.py").read())
+exec(open("./Element_under_soil_bc_03_Trial_Disp.py").read())
 '''
 constraints('Transformation')
 numberer('Plain')
@@ -74,26 +74,89 @@ record()
 '''
 #for i in range(101, 113):
 #    timeSeries('Path', i, '-dt', 0.005, '-filePath','EQ_disp_1_'+str(i)+'.txt','-factor', 1.0)
-Spr_nodes = np.arange(11489,11503,1)
-EQ_rec = np.arange(101,114,1)
-
+#Spr_nodes = np.arange(11489,11503,1)
+#EQ_rec = np.arange(101,114,1)
+'''
 fix(11489, 1, 1, 1, 1, 1, 1)
 fix(11490, 1, 1, 1, 1, 1, 1)
 fix(11491, 1, 1, 1, 1, 1, 1)
-
+'''
 #recorder Node -file DFree123.out -time -node 2 -dof 1 2 3 disp;      
 recorder('Node', '-file', 'Disp_trial.out', '-time','-node', 1489, '-dof', 1,2,3,4,5,6 , 'disp')
 
 
+
+
+############################# Construction of Support nodes and EQ disp records##########################
+#22
+a = np.arange(111192,111232,1).reshape(40,1)
+a = np.repeat(a, 5, axis=1)
+b = np.arange(0,50000,10000).reshape(1,5)
+P22 = a+b
+P1 = P22.flatten()
+eq_id = np.tile(np. concatenate( (np.arange(1,39+1,1), [114] ) ),5)
+#31
+a1 = np.arange(11786,11824,1).reshape(38,1)
+a1 = np.repeat(a1, 5, axis=1)
+b1 = np.arange(0,5000,1000).reshape(1,5)
+P31 = a1+b1
+eq_id1 = np.tile(np.arange(39,39+38,1),5)
+#33
+a2 = np.arange(11761,11785,1).reshape(24,1)
+a2 = np.repeat(a2, 9, axis=1)
+b2 = np.arange(0,9000,1000).reshape(1,9)
+P33 = a2+b2
+eq_id2 = np.tile(np.concatenate((np.arange(78,78+23,1), [114] )),9)
+#34
+a3 = np.arange(11489,11503,1).reshape(14,1)
+a3 = np.repeat(a3, 9, axis=1)
+b3 = np.arange(0,9000,1000).reshape(1,9)
+P34 = a3+b3
+eq_id3 = np.tile(np.concatenate((np.arange(101,101+13,1), [114])),9)
+
+EQ_rec = np.concatenate((eq_id,eq_id1,eq_id2,eq_id3),axis=0)
+    
+P_1 = P22.flatten(order='f')
+P_2 = P31.flatten(order='f')
+P_3 = P33.flatten(order='f')
+P_4 = P34.flatten(order='f')
+    
+Sup_nodes = np.concatenate((P_1,P_2,P_3,P_4),axis=0)
+
+
+
+
+
+
+
+
+
+for i in range(114):#len(Sup_nodes)-1):
+    i = 1+i
+    print(i)
+    
+    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(i)+'.txt','-factor', 200.0)
+
+
+
+
+
+
+
+
+
+cc =0
+
 pattern('MultipleSupport', 1)
-for i in range(len(Spr_nodes)-1):
+for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
+    cc = cc +1
     #i = 12
     print(EQ_rec[i])
     
-    timeSeries('Path', int(EQ_rec[i]), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(EQ_rec[i])+'.txt','-factor', 200.0)
+    #timeSeries('Path', int(EQ_rec[i]), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(EQ_rec[i])+'.txt','-factor', 200.0)
     #timeSeries('Path', 102, '-dt', 0.005, '-filePath','EQ_disp_1_102.txt','-factor', 200.0)
-    groundMotion(int(EQ_rec[i]),'Plain','-disp',int(EQ_rec[i]))
-    imposedMotion(int(Spr_nodes[i]),1,int(EQ_rec[i])) # node, dof, gmTag    
+    groundMotion(cc,'Plain','-disp',int(EQ_rec[i]))
+    imposedMotion(int(Sup_nodes[i]),1,cc) # node, dof, gmTag    
         
 
 '''
@@ -257,25 +320,6 @@ plt.figure()
 plt.plot(disp)
 
 '''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
