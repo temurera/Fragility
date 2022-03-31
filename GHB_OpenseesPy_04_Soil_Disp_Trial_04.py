@@ -31,10 +31,10 @@ exec(open("./Node_Coord_13.py").read())
 exec(open("./Section_13.py").read())
 exec(open("./Beam_Int_13_2.py").read())
 exec(open("./Materials_13.py").read())
-exec(open("./Boundary_13.py").read())
+#exec(open("./Boundary_13.py").read())
 exec(open("./GeoTran_13.py").read())
 #exec(open("./Elements_13_2.py").read())
-exec(open("./Elements_13_3.py").read()) #For alteration of nodes for the rotational springs
+
 
 #   Section Comp_gen: secTag E A Iz Iy G J <alphaY> <alphaZ>
 section('Elastic', 104, 200000000, 1.08, 0.51, 0.51, 76923080, 1.933, 0.8074527, 0.8074527)
@@ -50,7 +50,7 @@ def rot2DSpringModel(eleID, nodeR, nodeC, K):
     #uniaxialMaterial('Bilin',eleID,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
     uniaxialMaterial('ElasticBilin',eleID,K, 0.00001*K,0.0001)
     element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID, '-dir', 4)
-    element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID, '-dir', 5)
+    element('zeroLength', eleID+20000, nodeR, nodeC, '-mat', eleID, '-dir', 5)
     equalDOF(nodeR, nodeC, 1, 2, 3, 6)
     return
 
@@ -64,68 +64,33 @@ for i in range(len(Nonl_nodes)):
     node(int(Nonl_nodes[i]+20000),nodeCoord(Nonl_nodes[i])[0],nodeCoord(Nonl_nodes[i])[1],nodeCoord(Nonl_nodes[i])[2],'-ndf',6)
     rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
     
+#element('forceBeamColumn',99001, 151, 11192,95,400,'-mass', +1.391642E+01,  '-iter',   10,  +1.000000E-12)
+exec(open("./Elements_13_3.py").read()) #For alteration of nodes for the rotational springs
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
-constraints('Transformation')
-numberer('Plain')
-system('UmfPack')
-test('NormDispIncr',+1.000000E-12,25,0,2)
-algorithm('Newton')
-integrator('Newmark',+5.000000E-01,+2.500000E-01)
-analysis('Transient')
-numb = 12
-# calculate eigenvalues & print results     
-numEigen = 12
-eigenValues = eigen(numEigen)
-#PI = -np.cos(1.0)
-
-
-
-ome=[]
-per = []
-freq = []
-for eig in range(len(eigenValues)):
-    ome.append(np.sqrt(eigenValues[eig]))
-    per.append(2*np.pi/ome[-1])
-    freq.append(1/per[-1])
-#eigen(solver='-fullGenLapack', numb)
-
-recorder('Node', '-file', 'MODAL_Node_NodeEigen_EigenVec_1_PY.out', '-time','-nodeRange', 1, 1000001, '-dof', 1, 2, 3, 4, 5, 6, 'eigen1')
-record()
-#create nodes
-#exec(open("Elements.py").read())
-#opsplt.plot_model()  # command from Get_Rendering module
-#opsv.plot_model()  # command from ops_vis module
-'''
-#for i in range(101, 113):
-#    timeSeries('Path', i, '-dt', 0.005, '-filePath','EQ_disp_1_'+str(i)+'.txt','-factor', 1.0)
-#Spr_nodes = np.arange(11489,11503,1)
-#EQ_rec = np.arange(101,114,1)
-'''
-fix(11489, 1, 1, 1, 1, 1, 1)
-fix(11490, 1, 1, 1, 1, 1, 1)
-fix(11491, 1, 1, 1, 1, 1, 1)
-'''
 #recorder Node -file DFree123.out -time -node 2 -dof 1 2 3 disp;      
+'''
+recorder('Node', '-file', 'Disp_trial_111192.out', '-time','-node', 111192, '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Disp_trial_11192.out', '-time','-node', 11192, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Disp_trial_100.out', '-time','-node', 100, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Disp_trial_4761.out', '-time','-node', 4761, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Disp_trial_151.out', '-time','-node', 151, '-dof', 1,2,3,4,5,6 , 'disp')
+'''
 
+recorder('Node', '-file', 'Disp_150.out', '-time','-node', 150, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Disp_20150.out', '-time','-node', 20150, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Reac_150.out', '-time','-node', 150, '-dof', 1,2,3,4,5,6 , 'reac')
+recorder('Node', '-file', 'Reac_20150.out', '-time','-node', 150, '-dof', 1,2,3,4,5,6 , 'reac')
 
-
+#for i in range(len(Nonl_nodes)):
+    #rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
+'''
+i = 5
+recorder('Node', '-file', 'Disp_trial_'+str(Nonl_nodes[i])+'.out', '-time','-node', Nonl_nodes[i], '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Reac_trial_'+str(Nonl_nodes[i])+'.out', '-time','-node', Nonl_nodes[i], '-dof', 1,2,3,4,5,6 , 'reaction')
+recorder('Node', '-file', 'Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '-time','-node', int(Nonl_nodes[i]+20000), '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '-time','-node', int(Nonl_nodes[i]+20000), '-dof', 1,2,3,4,5,6 , 'reaction')
+'''
 
 ############################# Construction of Support nodes and EQ disp records##########################
 #22
@@ -166,22 +131,10 @@ Sup_nodes = np.concatenate((P_1,P_2,P_3,P_4),axis=0)
 
 
 
-
-
-
-
-
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
     print(i)
-    
-    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(i)+'.txt','-factor',  100)
-
-
-
-
-
-
+    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(i)+'.txt','-factor',  1000)
 
 
 
@@ -197,66 +150,8 @@ for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
     #timeSeries('Path', 102, '-dt', 0.005, '-filePath','EQ_disp_1_102.txt','-factor', 200.0)
     groundMotion(cc,'Plain','-disp',int(EQ_rec[i]))
     imposedMotion(int(Sup_nodes[i]),1,cc) # node, dof, gmTag    
+    imposedMotion(int(Sup_nodes[i]),2,cc) # node, dof, gmTag 
         
-
-'''
-i=0
-timeSeries('Path', int(EQ_rec[i]), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(EQ_rec[i])+'.txt','-factor', 200.0)
-timeSeries('Path', 102, '-dt', 0.005, '-filePath','EQ_disp_1_102.txt','-factor', 200.0)
-#pattern('UniformExcitation', 1, 1, '-disp', 101)
-pattern('MultipleSupport',1)
-groundMotion(101,'Plain','-disp',101)
-imposedMotion(11489,1,101) # node, dof, gmTag
-groundMotion(102,'Plain','-disp',102)
-imposedMotion(11490,1,102)
-
-i = 12
-timeSeries('Path', int(EQ_rec[i]), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(int(EQ_rec[i]))+'.txt','-factor', 200.0)
-groundMotion(int(EQ_rec[i]),'Plain','-disp',int(EQ_rec[i]))
-imposedMotion(int(Spr_nodes[i]),1,int(EQ_rec[i]))
-
- 
-#mass(1489, 1000,1000,1000,0,0,0)
-
-rayleigh(0.0, 0.0, 0.0, 0.000625)
-
-# Delete the old analysis and all it's component objects
-#wipeAnalysis()
-
-# Create the system of equation, a banded general storage scheme
-system('BandGeneral')
-
-# Create the constraint handler, a plain handler as homogeneous boundary
-#constraints('Lagrange', alphaS=1.0, alphaM=1.0)
-constraints('Plain')
-# Create the convergence test, the norm of the residual with a tolerance of 
-# 1e-12 and a max number of iterations of 10
-test('NormDispIncr', 1.0e-12,35,0 )
-
-# Create the solution algorithm, a Newton-Raphson algorithm
-algorithm('Newton')
-
-# Create the DOF numberer, the reverse Cuthill-McKee algorithm
-numberer('RCM')
-
-# Create the integration scheme, the Newmark with alpha =0.5 and beta =.25
-integrator('Newmark',  0.5,  0.25 )
-
-# Create the analysis object
-analysis('Transient')   # define type of analysis: time-dependent
-analyze(5176, 0.005)	 # apply 3995 0.01-sec time steps in analysis
-
-disp = pd.DataFrame(pd.read_csv('Disp_trial.out',delimiter=" ", header = None)).to_numpy() 
-#vel = pd.DataFrame(pd.read_csv('VFree_py.out',delimiter=" ", header = None)).to_numpy() 
-#accl = pd.DataFrame(pd.read_csv('AFree_py.out',delimiter=" ", header = None)).to_numpy() 
-
-plt.figure()
-plt.plot(disp[:,4])
-#plt.plot(disp1[:6500,1],-force1[:6500,1])
-#plt.legend(["PY","OpenSEES"])
-
-'''
-
 maxNumIter = 10
 wipeAnalysis()
 constraints('Transformation')
@@ -313,77 +208,33 @@ eigenValues = eigen(numEigen)
 analyze(5176,0.005)
 endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
-'''
-nels = len(el_tags)
 
-timeV = np.zeros(nPts)
-
-Eds = np.zeros((nPts, nels, 12))
-step = -1
-while tCurrent < tFinal:
-    step=step+1
-    timeV[step] = getTime()
-    #    ok = op.analyze(1, .01)     
-    for i in testT:
-        for j in algo: 
-            if j < 4:
-                algorithm(algo[j], '-initial')
-                
-            else:
-                algorithm(algo[j])
-            while ok == 0 and tCurrent < tFinal:
-                    
-                test(testT[i], Tol, maxNumIter)        
-                NewmarkGamma = 0.5
-                NewmarkBeta = 0.25
-                integrator('Newmark', NewmarkGamma, NewmarkBeta)
-                analysis('Transient')
-                ok = analyze(1, .005)
-                print(i)
-                if ok == 0 :
-                    tCurrent = getTime()                
-                    time.append(tCurrent)
-                    reactions()
-                    u1.append(nodeDisp(11192,1))
-                    u_spr_D.append(nodeDisp(111192,1))
-                    u_spr_R.append(nodeReaction(11192,1))
-                    u1_R.append(nodeReaction(111192))
-                    print(testT[i], algo[j], 'tCurrent=', tCurrent)
-                    for el_i, ele_tag in enumerate(el_tags):
-                        nd1, nd2 = eleNodes(ele_tag)
-                        i_end= []
-                        j_end= []
-                        for k in range(6):
-                            i_end.append(nodeDisp(nd1)[k])
-                            j_end.append(nodeDisp(nd2)[k])                            
-                        Eds[step, el_i, :] = np.asarray(np.transpose([i_end+j_end])).reshape(12)
-                            
-
-#input_parameters = (20.8, 300., 8.)
-# input_parameters = (70.0, 500., 2.)
-
-pf, sfac_a, tkt = input_parameters
-anim = opsv.anim_defo(Eds, timeV, sfac_a, interpFlag=1, fig_wi_he=(30., 22.))
-
-# 3D is NOT Supported YET! in opsv 
-
-#plt.show()
-        
-import matplotlib.pyplot as plt
-plt.figure(figsize=(8,8))
-plt.plot(u_spr_D[0:len(u1)-1],u1_1)
-plt.ylabel('Horizontal Displacement of node 3 (in)')
-plt.xlabel('Time (s)')
-plt.savefig('Horizontal Disp at Node 3 vs time-multiple support excitation-disptime.jpeg', dpi = 500)
-plt.show()
-
-
-
-'''
 
 disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
 plt.plot(disp[1:5000,1])
+
+ #%%
+
+disp111192 = pd.DataFrame(pd.read_csv('Disp_trial_111192.out',delimiter=" ", header = None)).to_numpy() 
+disp151 = pd.DataFrame(pd.read_csv('Disp_trial_151.out',delimiter=" ", header = None)).to_numpy() 
+#%%
+#disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
+plt.figure()
+plt.plot(disp151[1:5000,1])
+plt.figure()
+plt.plot(disp111192[1:5000,1])
+
+ #%%
+
+i = 5
+disp5 = pd.DataFrame(pd.read_csv('Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
+reac5 = pd.DataFrame(pd.read_csv('Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
+disp51 = pd.DataFrame(pd.read_csv('Disp_trial_'+str(Nonl_nodes[i])+'.out',delimiter=" ", header = None)).to_numpy() 
+reac51 = pd.DataFrame(pd.read_csv('Reac_trial_'+(str(Nonl_nodes[i]))+'.out',delimiter=" ", header = None)).to_numpy() 
+
+#plt.plot(disp5)
+
 
 
 #input_parameters = (70.0, 500., 2.)
@@ -391,24 +242,3 @@ plt.plot(disp[1:5000,1])
 #opsv.plot_defo(1000,1, fmt_interp='b-', az_el=(6., 30.),fig_wi_he=(50,200))
 
 opsplt.plot_model()
-'''
-opsplt.plot_model()
-
-u1_1 = []
-for i in range(len(u1_R)-1):
-    print(i)
-    u1_1.append(u1_R[i+1][0])
-    
-
-
-#analyze
- 
-#printA('-file','trial.txt')
-
-#### Display the active model with node tags only
-#opsplt.plot_model()
-#plt.xlim([-90, -65])
-#plt.ylim([-10, 10])
-#plt.xlim([90, 120])
-#plt.ylim([-10, 10])
- '''
