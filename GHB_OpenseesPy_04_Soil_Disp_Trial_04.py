@@ -9,6 +9,7 @@ from openseespy.opensees import *
 import numpy as np
 import matplotlib.pyplot as plt
 import openseespy.postprocessing.Get_Rendering as opsplt
+import openseespy.postprocessing.Get_Rendering as createODB
 import openseespy.postprocessing.ops_vis as opsv
 #import openseespy.postprocessing.ops_vis as opsv
 import pandas as pd
@@ -48,7 +49,7 @@ exec(open("./Element_under_soil_bc_03_Trial_Disp.py").read())
 
 def rot2DSpringModel(eleID, nodeR, nodeC, K):
     #uniaxialMaterial('Bilin',eleID,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
-    uniaxialMaterial('ElasticBilin',eleID,K, 0.00001*K,0.0001)
+    uniaxialMaterial('ElasticBilin',eleID,K, 0.001*K,0.01)
     element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID, '-dir', 4)
     element('zeroLength', eleID+20000, nodeR, nodeC, '-mat', eleID, '-dir', 5)
     equalDOF(nodeR, nodeC, 1, 2, 3, 6)
@@ -76,11 +77,12 @@ recorder('Node', '-file', 'Disp_trial_100.out', '-time','-node', 100, '-dof', 1,
 recorder('Node', '-file', 'Disp_trial_4761.out', '-time','-node', 4761, '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Disp_trial_151.out', '-time','-node', 151, '-dof', 1,2,3,4,5,6 , 'disp')
 '''
-
-recorder('Node', '-file', 'Disp_150.out', '-time','-node', 150, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_20150.out', '-time','-node', 20150, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Reac_150.out', '-time','-node', 150, '-dof', 1,2,3,4,5,6 , 'reac')
-recorder('Node', '-file', 'Reac_20150.out', '-time','-node', 150, '-dof', 1,2,3,4,5,6 , 'reac')
+recorder('Node', '-file', 'Disp_150.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Disp_20150.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Reac_150.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
+recorder('Node', '-file', 'Reac_20150.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
+#i = 0
+recorder('Element', '-file', 'Element_'+str(int(20000+10))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
 
 #for i in range(len(Nonl_nodes)):
     #rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
@@ -129,11 +131,12 @@ P_4 = P34.flatten(order='f')
 Sup_nodes = np.concatenate((P_1,P_2,P_3,P_4),axis=0)
 
 
+opsplt.createODB("GHB_bridge_model", "EQ1")
 
 
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
-    print(i)
+    #print(i)
     timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(i)+'.txt','-factor',  1000)
 
 
@@ -187,11 +190,10 @@ u1_R = [0.0]
 u_spr_D = [0.0]
 u_spr_R = [0.0]
 ok = 0
-Tol = 1e-4
+Tol = 1e-1
 el_tags = getEleTags()
 
 node_tags = getNodeTags()
-
 
 constraints('Transformation')
 numberer('Plain')
@@ -209,24 +211,49 @@ analyze(5176,0.005)
 endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
-
 disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
 plt.plot(disp[1:5000,1])
 
- #%%
 
-disp111192 = pd.DataFrame(pd.read_csv('Disp_trial_111192.out',delimiter=" ", header = None)).to_numpy() 
-disp151 = pd.DataFrame(pd.read_csv('Disp_trial_151.out',delimiter=" ", header = None)).to_numpy() 
+
+#%% Loading the disp and reac results
+
+disp_150 = pd.DataFrame(pd.read_csv('Disp_150.out',delimiter=" ", header = None)).to_numpy() 
+disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150.out',delimiter=" ", header = None)).to_numpy() 
+reac_150 = pd.DataFrame(pd.read_csv('Reac_150.out',delimiter=" ", header = None)).to_numpy() 
+reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150.out',delimiter=" ", header = None)).to_numpy() 
+
+ele_618 = pd.DataFrame(pd.read_csv('Element_'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
+
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
-plt.plot(disp151[1:5000,1])
+plt.plot((disp_20150[0:5000,4]-disp_150[0:5000,4])/(Fy*Sec_mod))
+#plt.figure()
+#plt.plot(disp[1:5000,1])
+
+#%%
+
 plt.figure()
-plt.plot(disp111192[1:5000,1])
-
+plt.plot(disp_20150[0:5000,5],ele_618[0:5000,5])
+#plt.plot((disp_20150[:,4]))
  #%%
+plt.figure()
+plt.plot(ele_618[0:5000,5])
 
+
+#%%
+
+
+ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=1,tStart=0.0, tEnd=25.0, scale=50)
+from matplotlib.animation import PillowWriter
+writer = PillowWriter(fps=30)
+ani.save("GHB_example.gif", writer=writer)
+
+
+
+#%%
 i = 5
 disp5 = pd.DataFrame(pd.read_csv('Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
 reac5 = pd.DataFrame(pd.read_csv('Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
@@ -235,10 +262,10 @@ reac51 = pd.DataFrame(pd.read_csv('Reac_trial_'+(str(Nonl_nodes[i]))+'.out',deli
 
 #plt.plot(disp5)
 
-
-
+#%%
+#ND = pd.DataFrame(pd.read_csv('GHB_bridge_model_ODB\EQ1\NodeDisp_All.out',delimiter=" ", header = None)).to_numpy()
 #input_parameters = (70.0, 500., 2.)
 #pf, sfac_a, tkt = input_parameters
 #opsv.plot_defo(1000,1, fmt_interp='b-', az_el=(6., 30.),fig_wi_he=(50,200))
-
+#%%
 opsplt.plot_model()
