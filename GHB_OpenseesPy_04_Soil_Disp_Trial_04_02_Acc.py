@@ -49,7 +49,7 @@ exec(open("./Element_under_soil_bc_03_Trial_Disp.py").read())
 
 def rot2DSpringModel(eleID, nodeR, nodeC, K):
     #uniaxialMaterial('Bilin',eleID,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
-    uniaxialMaterial('ElasticPP',eleID,K, 1)
+    uniaxialMaterial('ElasticPP',eleID,K*100, 0.01)
     element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID, '-dir', 4)
     element('zeroLength', eleID+20000, nodeR, nodeC, '-mat', eleID, '-dir', 5)
     equalDOF(nodeR, nodeC, 1, 2, 3, 6)
@@ -93,6 +93,15 @@ recorder('Node', '-file', 'Reac_trial_'+str(Nonl_nodes[i])+'.out', '-time','-nod
 recorder('Node', '-file', 'Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '-time','-node', int(Nonl_nodes[i]+20000), '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '-time','-node', int(Nonl_nodes[i]+20000), '-dof', 1,2,3,4,5,6 , 'reaction')
 '''
+'''
+xDamp= 0.05;                 # damping ratio
+MpropSwitch = 1.0;
+KcurrSwitch =0.0;
+KcommSwitch =1.0;
+KinitSwitch = 0.0;
+'''
+
+
 
 ############################# Construction of Support nodes and EQ disp records##########################
 #22
@@ -156,19 +165,19 @@ for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
     imposedMotion(int(Sup_nodes[i]),2,cc) # node, dof, gmTag 
 '''        
 g = 9.81
-timeSeries('Path', 1, '-filePath','Matched_165-1.A.txt', '-dt', 0.005, '-factor', g*1)
-timeSeries('Path', 2, '-filePath','Matched_165-2.A.txt', '-dt', 0.005, '-factor', g*1)    
+timeSeries('Path', 1, '-filePath','Matched_165-1.A.txt', '-dt', 0.005, '-factor', g*4)
+timeSeries('Path', 2, '-filePath','Matched_165-2.A.txt', '-dt', 0.005, '-factor', g*4)    
 
 # Create UniformExcitation load pattern
-#                         tag dir 
+# tag dir 
 pattern('UniformExcitation',  1,   1,  '-accel', 1)
 pattern('UniformExcitation',  2,   2,  '-accel', 2)
-
+'''
 maxNumIter = 10
 wipeAnalysis()
 constraints('Transformation')
 numberer('RCM')
-system('BandGeneral')
+system('BandGeneral')'''
 #op.test('EnergyIncr', Tol, maxNumIter)
 #op.algorithm('ModifiedNewton')
 #NewmarkGamma = 0.5
@@ -182,7 +191,7 @@ system('BandGeneral')
 #ok = op.analyze(Nsteps, DtAnalysis)
 record()
 
-nPts = 5176
+nPts = 5998
 dt = 0.005
 tCurrent = getTime()
 
@@ -190,6 +199,9 @@ tCurrent = getTime()
 
 testT = {1:'NormDispIncr', 2: 'RelativeEnergyIncr', 3:'EnergyIncr', 4: 'RelativeNormUnbalance',5: 'RelativeNormDispIncr', 6: 'NormUnbalance'}
 algo= {1:'KrylovNewton', 2: 'SecantNewton' , 3:'ModifiedNewton' , 4: 'RaphsonNewton',5: 'PeriodicNewton', 6: 'BFGS', 7: 'Broyden', 8: 'NewtonLineSearch'}
+
+
+
 
 #tFinal = TmaxAnalysis
 tFinal = nPts*dt
@@ -199,16 +211,22 @@ u1_R = [0.0]
 u_spr_D = [0.0]
 u_spr_R = [0.0]
 ok = 0
-Tol = 1e-2
+Tol = 1e-1
 el_tags = getEleTags()
 
 node_tags = getNodeTags()
+alphaM =0.0811
+betaKcurr = 0.0006161
+betaKcomm = 0.0006161
+betaKinit = 0.0006161
+rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
+
 
 constraints('Transformation')
 numberer('Plain')
 system('UmfPack')
-test('NormDispIncr',+1.000000E-12,25,0,2)
-algorithm('Newton')
+test('NormDispIncr',+1.000000E-4,25,0,2)
+algorithm('KrylovNewton')
 integrator('Newmark',+5.000000E-01,+2.500000E-01)
 analysis('Transient')
 numb = 12
@@ -216,13 +234,24 @@ numb = 12
 numEigen = 12
 eigenValues = eigen(numEigen)
 #PI = -np.cos(1.0)
-analyze(5176,0.005)
+analyze(5998,0.005)
 endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
-disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
-plt.figure()
-plt.plot(disp[1:5000,1])
+#disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
+#plt.figure()
+#plt.plot(disp[1:5000,1])
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -238,18 +267,21 @@ ele_618 = pd.DataFrame(pd.read_csv('Element_'+str(int(20000+10))+'.out',delimite
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
-plt.plot((disp_20150[0:5000,4]-disp_150[0:5000,4])/(Fy*Sec_mod))
+plt.plot((disp_150[0:5000,4]))
 #plt.figure()
 #plt.plot(disp[1:5000,1])
 
 #%%
 
 plt.figure()
-plt.plot(disp_20150[0:5000,4],ele_618[0:5000,4])
+plt.plot(ele_618[:,4])
+
+plt.figure()
+plt.plot(ele_618[:,5])
 #plt.plot((disp_20150[:,4]))
  #%%
 plt.figure()
-plt.plot(disp_150[0:5000,4],ele_618[0:5000,4])
+plt.plot(disp_150[0:3500,5],ele_618[0:3500,5])
 
 
 #%%
@@ -257,8 +289,8 @@ plt.plot(disp_150[0:5000,4],ele_618[0:5000,4])
 
 ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=1,tStart=0.0, tEnd=25.0, scale=50)
 from matplotlib.animation import PillowWriter
-writer = PillowWriter(fps=30)
-ani.save("GHB_example.gif", writer=writer)
+#writer = PillowWriter(fps=30)
+#ani.save("GHB_example.gif", writer=writer)
 
 
 
@@ -277,4 +309,4 @@ reac51 = pd.DataFrame(pd.read_csv('Reac_trial_'+(str(Nonl_nodes[i]))+'.out',deli
 #pf, sfac_a, tkt = input_parameters
 #opsv.plot_defo(1000,1, fmt_interp='b-', az_el=(6., 30.),fig_wi_he=(50,200))
 #%%
-opsplt.plot_model()
+opsplt.plot_model('nodes')
