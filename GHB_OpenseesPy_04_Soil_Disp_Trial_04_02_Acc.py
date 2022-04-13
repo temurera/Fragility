@@ -14,7 +14,7 @@ import openseespy.postprocessing.ops_vis as opsv
 #import openseespy.postprocessing.ops_vis as opsv
 import pandas as pd
 from datetime import datetime
-
+#%%
 #This script produces the model of a cable stayed bridge and the result of the modal analysis.
 #Eray Temur
 
@@ -244,17 +244,6 @@ print("runtime: "+ str(endtime-starttime))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 #%% Loading the disp and reac results
 
 disp_150 = pd.DataFrame(pd.read_csv('Disp_150.out',delimiter=" ", header = None)).to_numpy() 
@@ -281,7 +270,11 @@ plt.plot(ele_618[:,5])
 #plt.plot((disp_20150[:,4]))
  #%%
 plt.figure()
-plt.plot(disp_150[0:3500,5],ele_618[0:3500,5])
+plt.plot(disp_20150[:,4],ele_618[:,4])
+plt.title("Hysteresis of a hinge for Acceleration input 165_1 scaled by 4",fontname="Times New Roman",fontweight="bold")
+plt.xlabel("Rotation")
+plt.ylabel("Moment x")
+plt.savefig('Moment_Rotation2.pdf')  
 
 
 #%%
