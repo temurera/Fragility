@@ -217,7 +217,7 @@ n= 10 #stiffness multiplier for rotational spring
 
 def rotSpring2DModIKModel(eleID, nodeR, nodeC, K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN):
     #uniaxialMaterial('Bilin',eleID,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
-    uniaxialMaterial('ElasticBilin',eleID,K, 0.01*K,0.001)
+    uniaxialMaterial('ElasticBilin',eleID,K, 0.0001*K,0.01)
     element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID, '-dir', 3)
     equalDOF(nodeR, nodeC, 1, 2)
     return
