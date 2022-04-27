@@ -270,11 +270,11 @@ plt.plot(ele_618[:,5])
 #plt.plot((disp_20150[:,4]))
  #%%
 plt.figure()
-plt.plot(disp_20150[:,4],ele_618[:,4])
+plt.plot(disp_20150[:5000,4],ele_618[:5000,4])
 plt.title("Hysteresis of a hinge for Acceleration input 165_1 scaled by 4",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2.pdf')  
+plt.savefig('Moment_Rotation2_20150_618_Acc.pdf')  
 
 
 #%%

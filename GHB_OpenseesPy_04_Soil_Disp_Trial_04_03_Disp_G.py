@@ -77,12 +77,12 @@ recorder('Node', '-file', 'Disp_trial_100.out', '-time','-node', 100, '-dof', 1,
 recorder('Node', '-file', 'Disp_trial_4761.out', '-time','-node', 4761, '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Disp_trial_151.out', '-time','-node', 151, '-dof', 1,2,3,4,5,6 , 'disp')
 '''
-recorder('Node', '-file', 'Disp_150_d.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_20150_d.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Reac_150_d.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
-recorder('Node', '-file', 'Reac_20150_d.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
+recorder('Node', '-file', 'Disp_150_dg.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Disp_20150_dg.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Reac_150_dg.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
+recorder('Node', '-file', 'Reac_20150_dg.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
 #i = 0
-recorder('Element', '-file', 'Element_d_'+str(int(20000+10))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
+recorder('Element', '-file', 'Element_dg_'+str(int(20000+10))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
 
 #for i in range(len(Nonl_nodes)):
     #rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
@@ -134,6 +134,162 @@ Sup_nodes = np.concatenate((P_1,P_2,P_3,P_4),axis=0)
 opsplt.createODB("GHB_bridge_model", "EQ1")
 
 g = 9.81
+
+
+
+'''
+for i in range(114):#len(Sup_nodes)-1):
+    i = 1+i
+    #print(i)
+    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(i)+'.txt','-factor',  g*4)
+
+
+
+cc =0
+
+pattern('MultipleSupport', 1)
+for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
+    cc = cc +1
+    #i = 12
+    #print(EQ_rec[i])
+    
+    #timeSeries('Path', int(EQ_rec[i]), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(EQ_rec[i])+'.txt','-factor', 200.0)
+    #timeSeries('Path', 102, '-dt', 0.005, '-filePath','EQ_disp_1_102.txt','-factor', 200.0)
+    groundMotion(cc,'Plain','-disp',int(EQ_rec[i]))
+    imposedMotion(int(Sup_nodes[i]),1,cc) # node, dof, gmTag    
+    imposedMotion(int(Sup_nodes[i]),2,cc) # node, dof, gmTag 
+'''
+
+
+g = 9.81
+timeSeries('Path', 1, '-filePath','EQ_disp_1_114.txt', '-dt', 0.005, '-factor', g*4)
+timeSeries('Path', 2, '-filePath','EQ_disp_1_114.txt', '-dt', 0.005, '-factor', g*4)    
+
+# Create UniformExcitation load pattern
+# tag dir 
+pattern('UniformExcitation',  1,   1,  '-disp', 1)
+pattern('UniformExcitation',  2,   2,  '-disp', 2)
+
+        
+maxNumIter = 10
+wipeAnalysis()
+constraints('Transformation')
+numberer('RCM')
+system('BandGeneral')
+#op.test('EnergyIncr', Tol, maxNumIter)
+#op.algorithm('ModifiedNewton')
+#NewmarkGamma = 0.5
+#NewmarkBeta = 0.25
+#op.integrator('Newmark', NewmarkGamma, NewmarkBeta)
+#op.analysis('Transient')
+#
+#
+#Nsteps =  int(TmaxAnalysis/ DtAnalysis)
+#
+#ok = op.analyze(Nsteps, DtAnalysis)
+record()
+
+nPts = 5176
+dt = 0.005
+tCurrent = getTime()
+
+# for gravity analysis, load control is fine, 0.1 is the load factor increment (http://opensees.berkeley.edu/wiki/index.php/Load_Control)
+
+testT = {1:'NormDispIncr', 2: 'RelativeEnergyIncr', 3:'EnergyIncr', 4: 'RelativeNormUnbalance',5: 'RelativeNormDispIncr', 6: 'NormUnbalance'}
+algo= {1:'KrylovNewton', 2: 'SecantNewton' , 3:'ModifiedNewton' , 4: 'RaphsonNewton',5: 'PeriodicNewton', 6: 'BFGS', 7: 'Broyden', 8: 'NewtonLineSearch'}
+
+#tFinal = TmaxAnalysis
+tFinal = nPts*dt
+time = [tCurrent]
+u1 = [0.0]
+u1_R = [0.0]
+u_spr_D = [0.0]
+u_spr_R = [0.0]
+ok = 0
+Tol = 1e-1
+el_tags = getEleTags()
+
+node_tags = getNodeTags()
+
+constraints('Transformation')
+numberer('Plain')
+system('UmfPack')
+test('NormDispIncr',+1.000000E-12,25,0,2)
+algorithm('Newton')
+integrator('Newmark',+5.000000E-01,+2.500000E-01)
+analysis('Transient')
+numb = 12
+# calculate eigenvalues & print results     
+numEigen = 12
+eigenValues = eigen(numEigen)
+#PI = -np.cos(1.0)
+analyze(5176,0.005)
+endtime = datetime.now()
+print("runtime: "+ str(endtime-starttime))
+'''
+disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
+plt.figure()
+plt.plot(disp[1:5000,1])
+'''
+
+
+#%% Loading the disp and reac results
+
+disp_150 = pd.DataFrame(pd.read_csv('Disp_150_d.out',delimiter=" ", header = None)).to_numpy() 
+disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_d.out',delimiter=" ", header = None)).to_numpy() 
+reac_150 = pd.DataFrame(pd.read_csv('Reac_150_d.out',delimiter=" ", header = None)).to_numpy() 
+reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150_d.out',delimiter=" ", header = None)).to_numpy() 
+
+ele_618 = pd.DataFrame(pd.read_csv('Element_d_'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
+
+#%%
+#disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
+plt.figure()
+plt.plot(disp_20150[:5000,4],ele_618[:5000,4])
+plt.title("Hysteresis of a hinge for Disp input 165_1 scaled by 4",fontname="Times New Roman",fontweight="bold")
+plt.xlabel("Rotation")
+plt.ylabel("Moment x")
+plt.savefig('Moment_Rotation2_20150_618_Disp.pdf')  
+
+#plt.figure()
+#plt.plot(disp[1:5000,1])
+
+#%%
+
+plt.figure()
+plt.plot(disp_20150[0:5000,5],ele_618[0:5000,5])
+#plt.plot((disp_20150[:,4]))
+ #%%
+plt.figure()
+plt.plot(ele_618[0:5000,5])
+
+
+#%%
+
+
+ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=1,tStart=0.0, tEnd=25.0, scale=50)
+from matplotlib.animation import PillowWriter
+writer = PillowWriter(fps=30)
+ani.save("GHB_example.gif", writer=writer)
+
+
+
+#%%
+i = 5
+disp5 = pd.DataFrame(pd.read_csv('Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
+reac5 = pd.DataFrame(pd.read_csv('Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
+disp51 = pd.DataFrame(pd.read_csv('Disp_trial_'+str(Nonl_nodes[i])+'.out',delimiter=" ", header = None)).to_numpy() 
+reac51 = pd.DataFrame(pd.read_csv('Reac_trial_'+(str(Nonl_nodes[i]))+'.out',delimiter=" ", header = None)).to_numpy() 
+
+#plt.plot(disp5)
+
+#%%
+#ND = pd.DataFrame(pd.read_csv('GHB_bridge_model_ODB\EQ1\NodeDisp_All.out',delimiter=" ", header = None)).to_numpy()
+#input_parameters = (70.0, 500., 2.)
+#pf, sfac_a, tkt = input_parameters
+#opsv.plot_defo(1000,1, fmt_interp='b-', az_el=(6., 30.),fig_wi_he=(50,200))
+#%%
+opsplt.plot_model()
 
 
 for i in range(114):#len(Sup_nodes)-1):
@@ -221,12 +377,12 @@ plt.plot(disp[1:5000,1])
 
 #%% Loading the disp and reac results
 
-disp_150 = pd.DataFrame(pd.read_csv('Disp_150_d.out',delimiter=" ", header = None)).to_numpy() 
-disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_d.out',delimiter=" ", header = None)).to_numpy() 
-reac_150 = pd.DataFrame(pd.read_csv('Reac_150_d.out',delimiter=" ", header = None)).to_numpy() 
-reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150_d.out',delimiter=" ", header = None)).to_numpy() 
+disp_150 = pd.DataFrame(pd.read_csv('Disp_150_dg.out',delimiter=" ", header = None)).to_numpy() 
+disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_dg.out',delimiter=" ", header = None)).to_numpy() 
+reac_150 = pd.DataFrame(pd.read_csv('Reac_150_dg.out',delimiter=" ", header = None)).to_numpy() 
+reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150_dg.out',delimiter=" ", header = None)).to_numpy() 
 
-ele_618 = pd.DataFrame(pd.read_csv('Element_d_'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
+ele_618 = pd.DataFrame(pd.read_csv('Element_dg_'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
 
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
