@@ -192,7 +192,7 @@ u1_R = [0.0]
 u_spr_D = [0.0]
 u_spr_R = [0.0]
 ok = 0
-Tol = 1e-1
+Tol = 1e-4
 el_tags = getEleTags()
 
 node_tags = getNodeTags()
@@ -200,7 +200,7 @@ node_tags = getNodeTags()
 constraints('Transformation')
 numberer('Plain')
 system('UmfPack')
-test('NormDispIncr',+1.000000E-12,25,0,2)
+test('NormDispIncr',+1.000000E-4,25,0,2)
 algorithm('Newton')
 integrator('Newmark',+5.000000E-01,+2.500000E-01)
 analysis('Transient')
@@ -213,7 +213,7 @@ analyze(5176,0.005)
 endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
-disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
+#disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
 plt.plot(disp[1:5000,1])
 
