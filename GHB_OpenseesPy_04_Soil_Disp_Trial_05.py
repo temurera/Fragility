@@ -139,7 +139,7 @@ g = 9.81
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
     #print(i)
-    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ_disp_1_'+str(i)+'.txt','-factor',  g*2)
+    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*0.2)
 
 
 
@@ -200,8 +200,8 @@ node_tags = getNodeTags()
 constraints('Transformation')
 numberer('Plain')
 system('UmfPack')
-test('NormDispIncr',+1.000000E-4,25,0,2)
-algorithm('Newton')
+test('NormDispIncr',+1.000000E-4,25,0,1)
+algorithm('RaphsonNewton')
 integrator('Newmark',+5.000000E-01,+2.500000E-01)
 analysis('Transient')
 numb = 12
@@ -231,11 +231,11 @@ ele_618 = pd.DataFrame(pd.read_csv('Element_d_'+str(int(20000+10))+'.out',delimi
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
-plt.plot(disp_20150[:300,5],ele_618[:300,5])
-plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 2",fontname="Times New Roman",fontweight="bold")
+plt.plot(disp_20150[:5000,4],ele_618[:5000,4])
+plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 0.8",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2_20150_618_Disp_Correction.pdf')  
+plt.savefig('Moment_Rotation2_20150_618_Disp_Correction2.pdf')  
 
 #plt.figure()
 #plt.plot(disp[1:5000,1])
