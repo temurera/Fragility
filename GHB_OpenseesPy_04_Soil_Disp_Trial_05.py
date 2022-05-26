@@ -17,10 +17,9 @@ from datetime import datetime
 
 #This script produces the model of a cable stayed bridge and the result of the modal analysis.
 #Eray Temur
-
+wipe()
 starttime = datetime.now()
 
-wipe()
 
 Es = 0.3091327
 # model build
@@ -77,12 +76,12 @@ recorder('Node', '-file', 'Disp_trial_100.out', '-time','-node', 100, '-dof', 1,
 recorder('Node', '-file', 'Disp_trial_4761.out', '-time','-node', 4761, '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Disp_trial_151.out', '-time','-node', 151, '-dof', 1,2,3,4,5,6 , 'disp')
 '''
-recorder('Node', '-file', 'Disp_150_d.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_20150_d.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Reac_150_d.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
-recorder('Node', '-file', 'Reac_20150_d.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
+recorder('Node', '-file', 'Disp_150_d2.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Disp_20150_d2.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Reac_150_d2.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
+recorder('Node', '-file', 'Reac_20150_d2.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
 #i = 0
-recorder('Element', '-file', 'Element_d_'+str(int(20000+10))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
+recorder('Element', '-file', 'Element_d2_'+str(int(20000+10))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
 
 #for i in range(len(Nonl_nodes)):
     #rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
@@ -139,7 +138,7 @@ g = 9.81
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
     #print(i)
-    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*0.2)
+    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*1)
 
 
 
@@ -221,21 +220,21 @@ plt.plot(disp[1:5000,1])
 
 #%% Loading the disp and reac results
 
-disp_150 = pd.DataFrame(pd.read_csv('Disp_150_d.out',delimiter=" ", header = None)).to_numpy() 
-disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_d.out',delimiter=" ", header = None)).to_numpy() 
-reac_150 = pd.DataFrame(pd.read_csv('Reac_150_d.out',delimiter=" ", header = None)).to_numpy() 
-reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150_d.out',delimiter=" ", header = None)).to_numpy() 
+disp_150 = pd.DataFrame(pd.read_csv('Disp_150_d2.out',delimiter=" ", header = None)).to_numpy() 
+disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
+reac_150 = pd.DataFrame(pd.read_csv('Reac_150_d2.out',delimiter=" ", header = None)).to_numpy() 
+reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
 
-ele_618 = pd.DataFrame(pd.read_csv('Element_d_'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
+ele_618 = pd.DataFrame(pd.read_csv('Element_d2_'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
 
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
-plt.plot(disp_20150[:5000,4],ele_618[:5000,4])
+plt.plot(disp_20150[:5000,5],ele_618[:5000,5])
 plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 0.8",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2_20150_618_Disp_Correction2.pdf')  
+#plt.savefig('Moment_Rotation2_20150_618_Disp_Correction2.pdf')  
 
 #plt.figure()
 #plt.plot(disp[1:5000,1])
@@ -253,14 +252,14 @@ plt.plot(ele_618[0:5000,5])
 #%%
 
 
-ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=1,tStart=0.0, tEnd=25.0, scale=50)
+ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=10,tStart=0.0, tEnd=20, scale=100)
 from matplotlib.animation import PillowWriter
-writer = PillowWriter(fps=30)
-ani.save("GHB_example.gif", writer=writer)
+writer = PillowWriter(fps=10)
+ani.save("GHB_exampletr7c.gif", writer=writer)
 
 
 
-#%%
+ #%%
 i = 5
 disp5 = pd.DataFrame(pd.read_csv('Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
 reac5 = pd.DataFrame(pd.read_csv('Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
