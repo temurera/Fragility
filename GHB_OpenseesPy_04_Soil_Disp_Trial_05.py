@@ -138,7 +138,7 @@ g = 9.81
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
     #print(i)
-    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*1)
+    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*1.2)
 
 
 
@@ -234,7 +234,7 @@ plt.plot(disp_20150[:5000,5],ele_618[:5000,5])
 plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 0.8",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
-#plt.savefig('Moment_Rotation2_20150_618_Disp_Correction2.pdf')  
+plt.savefig('Moment_Rotation2_20150_618_Disp_Correction3.pdf')  
 
 #plt.figure()
 #plt.plot(disp[1:5000,1])
@@ -255,7 +255,7 @@ plt.plot(ele_618[0:5000,5])
 ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=10,tStart=0.0, tEnd=20, scale=100)
 from matplotlib.animation import PillowWriter
 writer = PillowWriter(fps=10)
-ani.save("GHB_exampletr7c.gif", writer=writer)
+ani.save("GHB_exampletr9D.gif", writer=writer) 
 
 
 
