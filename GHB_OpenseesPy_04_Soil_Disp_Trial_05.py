@@ -37,7 +37,7 @@ exec(open("./GeoTran_13.py").read())
 
 
 #   Section Comp_gen: secTag E A Iz Iy G J <alphaY> <alphaZ>
-section('Elastic', 104, 200000000, 1.08, 0.51, 0.51, 76923080, 1.933, 0.8074527, 0.8074527)
+section('Elastic', 104, 200000000, 10.8, 5.1, 5.1, 76923080, 1.933, 0.8074527, 0.8074527)
 
 #   beam Integration
 beamIntegration('Lobatto',400,104,5)
@@ -83,8 +83,14 @@ recorder('Node', '-file', 'Reac_20150_d2.out', '-time','-node', 20099, '-dof', 1
 #i = 0
 recorder('Element', '-file', 'Element_d2_'+str(int(20000+10))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
 
+recorder('Element', '-file', 'Element_d2_241228.out',  '-time', '-closeOnWrite', '-ele', 241228, 'force' )
+recorder('Element', '-file', 'Element_d2_231229.out',  '-time', '-closeOnWrite', '-ele', 231229, 'force' )
+recorder('Element', '-file', 'Element_d2_241230.out',  '-time', '-closeOnWrite', '-ele', 241230, 'force' )
 #for i in range(len(Nonl_nodes)):
     #rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
+    
+
+
 '''
 i = 5
 recorder('Node', '-file', 'Disp_trial_'+str(Nonl_nodes[i])+'.out', '-time','-node', Nonl_nodes[i], '-dof', 1,2,3,4,5,6 , 'disp')
@@ -138,8 +144,11 @@ g = 9.81
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
     #print(i)
-    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*1.2)
+    #timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_2_'+str(i)+'.txt','-factor',  g*2)
+    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_2_1.txt','-factor',  g*2)
+    
 
+#%%
 
 
 cc =0
@@ -214,7 +223,7 @@ print("runtime: "+ str(endtime-starttime))
 
 #disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
-plt.plot(disp[1:5000,1])
+plt.plot(disp_150[:500,1])
 
 
 
@@ -226,6 +235,16 @@ reac_150 = pd.DataFrame(pd.read_csv('Reac_150_d2.out',delimiter=" ", header = No
 reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
 
 ele_618 = pd.DataFrame(pd.read_csv('Element_d2_'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
+
+
+
+
+
+ele_an1 = pd.DataFrame(pd.read_csv('Element_d2_241228.out',delimiter=" ", header = None)).to_numpy() 
+ele_an2 = pd.DataFrame(pd.read_csv('Element_d2_231229.out',delimiter=" ", header = None)).to_numpy() 
+ele_an3 = pd.DataFrame(pd.read_csv('Element_d2_241230.out',delimiter=" ", header = None)).to_numpy() 
+
+
 
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
@@ -242,7 +261,7 @@ plt.savefig('Moment_Rotation2_20150_618_Disp_Correction3.pdf')
 #%%
 
 plt.figure()
-plt.plot(ele_618[0:300,4])
+plt.plot(ele_an1[:550,3])
 #plt.plot((disp_20150[:,4]))
  #%%
 plt.figure()
@@ -255,11 +274,11 @@ plt.plot(ele_618[0:5000,5])
 ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=10,tStart=0.0, tEnd=20, scale=100)
 from matplotlib.animation import PillowWriter
 writer = PillowWriter(fps=10)
-ani.save("GHB_exampletr9D.gif", writer=writer) 
+ani.save("GHB_exampletr_Same_1.gif", writer=writer) 
 
 
 
- #%%
+#%%
 i = 5
 disp5 = pd.DataFrame(pd.read_csv('Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
 reac5 = pd.DataFrame(pd.read_csv('Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
