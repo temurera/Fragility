@@ -35,7 +35,7 @@ exec(open("./Materials_13.py").read())
 exec(open("./GeoTran_13.py").read())
 #exec(open("./Elements_13_2.py").read())
 
-sc = 5
+sc = 3
 #   Section Comp_gen: secTag E A Iz Iy G J <alphaY> <alphaZ>
 section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.933, 0.8074527, 0.8074527)
 
@@ -139,7 +139,7 @@ g = 9.81
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
     #print(i)
-    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*5)
+    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*4)
 
 
 
@@ -192,7 +192,7 @@ u1_R = [0.0]
 u_spr_D = [0.0]
 u_spr_R = [0.0]
 ok = 0
-Tol = 1e-4
+Tol = 1e-8
 el_tags = getEleTags()
 
 node_tags = getNodeTags()
@@ -200,7 +200,7 @@ node_tags = getNodeTags()
 constraints('Transformation')
 numberer('Plain')
 system('UmfPack')
-test('NormDispIncr',+1.000000E-4,25,0,1)
+test('NormDispIncr',+1.000000E-2,25,0,1)
 algorithm('RaphsonNewton')
 integrator('Newmark',+5.000000E-01,+2.500000E-01)
 analysis('Transient')
@@ -214,12 +214,12 @@ endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
 #disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
-plt.figure()
-plt.plot(disp[1:5000,1])
+#plt.figure() 
+#plt.plot(disp[1:5000,1])
 
 
 
-#%% Loading the disp and reac results
+ #%% Loading the disp and reac results
 
 disp_150 = pd.DataFrame(pd.read_csv('Disp_150_d2.out',delimiter=" ", header = None)).to_numpy() 
 disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
@@ -232,10 +232,10 @@ ele_618 = pd.DataFrame(pd.read_csv('Element_d2_'+str(int(20000+10))+'.out',delim
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
 plt.plot(disp_20150[:5000,5],ele_618[:5000,5])
-plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 5",fontname="Times New Roman",fontweight="bold")
+plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 2",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2_20150_618_Disp_Correction4.pdf')  
+plt.savefig('Moment_Rotation2_20150_618_Disp_Correction5.pdf')  
 
 #plt.figure()
 #plt.plot(disp[1:5000,1])

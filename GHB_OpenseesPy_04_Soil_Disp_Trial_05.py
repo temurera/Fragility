@@ -36,8 +36,10 @@ exec(open("./GeoTran_13.py").read())
 #exec(open("./Elements_13_2.py").read())
 
 
+sc = 5
+
 #   Section Comp_gen: secTag E A Iz Iy G J <alphaY> <alphaZ>
-section('Elastic', 104, 200000000, 10.8, 5.1, 5.1, 76923080, 1.933, 0.8074527, 0.8074527)
+section('Elastic', 104, 200000000, sc*1.08, sc*.51, sc*.51, 76923080, 1.933, 0.8074527, 0.8074527)
 
 #   beam Integration
 beamIntegration('Lobatto',400,104,5)
@@ -48,7 +50,7 @@ exec(open("./Element_under_soil_bc_03_Trial_Disp.py").read())
 
 def rot2DSpringModel(eleID, nodeR, nodeC, K):
     #uniaxialMaterial('Bilin',eleID,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
-    uniaxialMaterial('ElasticBilin',eleID,K, 0.001*K,0.01)
+    uniaxialMaterial('ElasticBilin',eleID,K, 1*K,0.01*K)
     element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID, '-dir', 4)
     element('zeroLength', eleID+20000, nodeR, nodeC, '-mat', eleID, '-dir', 5)
     equalDOF(nodeR, nodeC, 1, 2, 3, 6)
@@ -62,7 +64,7 @@ Nonl_nodes = [138,136,29,150,148,154,152,69,158,156,99,97,98,93,73,89,108,103,10
 
 for i in range(len(Nonl_nodes)):
     node(int(Nonl_nodes[i]+20000),nodeCoord(Nonl_nodes[i])[0],nodeCoord(Nonl_nodes[i])[1],nodeCoord(Nonl_nodes[i])[2],'-ndf',6)
-    rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
+    rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], 80000)
     
 #element('forceBeamColumn',99001, 151, 11192,95,400,'-mass', +1.391642E+01,  '-iter',   10,  +1.000000E-12)
 exec(open("./Elements_13_3.py").read()) #For alteration of nodes for the rotational springs
@@ -137,15 +139,15 @@ Sup_nodes = np.concatenate((P_1,P_2,P_3,P_4),axis=0)
 
 
 opsplt.createODB("GHB_bridge_model", "EQ1")
-
 g = 9.81
+
 
 
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
     #print(i)
-    #timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_2_'+str(i)+'.txt','-factor',  g*2)
-    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_2_1.txt','-factor',  g*2)
+    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*12)
+    #timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_2_1.txt','-factor',  g*1)
     
 
 #%%
@@ -222,8 +224,8 @@ endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
 #disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
-plt.figure()
-plt.plot(disp_150[:500,1])
+##plt.figure()
+#plt.plot(disp_150[:500,1])
 
 
 
@@ -250,10 +252,10 @@ ele_an3 = pd.DataFrame(pd.read_csv('Element_d2_241230.out',delimiter=" ", header
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
 plt.plot(disp_20150[:5000,5],ele_618[:5000,5])
-plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 0.8",fontname="Times New Roman",fontweight="bold")
+plt.title("Hysteresis of a hinge for Disp",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2_20150_618_Disp_Correction3.pdf')  
+plt.savefig('Moment_Rotation2_20150_618_Disp_Correction_using_scaled_In.pdf')  
 
 #plt.figure()
 #plt.plot(disp[1:5000,1])
