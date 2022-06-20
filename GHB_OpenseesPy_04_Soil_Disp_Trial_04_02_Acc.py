@@ -77,12 +77,12 @@ recorder('Node', '-file', 'Disp_trial_100.out', '-time','-node', 100, '-dof', 1,
 recorder('Node', '-file', 'Disp_trial_4761.out', '-time','-node', 4761, '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Disp_trial_151.out', '-time','-node', 151, '-dof', 1,2,3,4,5,6 , 'disp')
 '''
-recorder('Node', '-file', 'Disp_150.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_20150.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Reac_150.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
-recorder('Node', '-file', 'Reac_20150.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
+recorder('Node', '-file', 'Disp_150Acc.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Disp_20150Acc.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Reac_150Acc.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
+recorder('Node', '-file', 'Reac_20150Acc.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
 #i = 0
-recorder('Element', '-file', 'Element_'+str(int(20000+10))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
+recorder('Element', '-file', 'Element_Acc'+str(int(20000+10))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
 
 #for i in range(len(Nonl_nodes)):
     #rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
@@ -246,12 +246,12 @@ print("runtime: "+ str(endtime-starttime))
 
 #%% Loading the disp and reac results
 
-disp_150 = pd.DataFrame(pd.read_csv('Disp_150.out',delimiter=" ", header = None)).to_numpy() 
-disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150.out',delimiter=" ", header = None)).to_numpy() 
-reac_150 = pd.DataFrame(pd.read_csv('Reac_150.out',delimiter=" ", header = None)).to_numpy() 
-reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150.out',delimiter=" ", header = None)).to_numpy() 
+disp_150 = pd.DataFrame(pd.read_csv('Disp_150Acc.out',delimiter=" ", header = None)).to_numpy() 
+disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150Acc.out',delimiter=" ", header = None)).to_numpy() 
+reac_150 = pd.DataFrame(pd.read_csv('Reac_150Acc.out',delimiter=" ", header = None)).to_numpy() 
+reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150Acc.out',delimiter=" ", header = None)).to_numpy() 
 
-ele_618 = pd.DataFrame(pd.read_csv('Element_'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
+ele_618 = pd.DataFrame(pd.read_csv('Element_Acc'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
 
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
@@ -274,7 +274,7 @@ plt.plot(disp_20150[:5000,4],ele_618[:5000,4])
 plt.title("Hysteresis of a hinge for Acceleration input 165_1 scaled by 0.9",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2_20150_618_Acc.pdf')  
+plt.savefig('Moment_Rotation2_20150_618_Acc_trial_01.pdf')  
 
 
 #%%
