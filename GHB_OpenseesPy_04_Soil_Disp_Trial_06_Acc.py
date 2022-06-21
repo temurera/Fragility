@@ -49,8 +49,8 @@ beamIntegration('Lobatto',400,104,5)
 
 def rot2DSpringModel(eleID, nodeR, nodeC, K):
     #uniaxialMaterial('Bilin',eleID,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
-    uniaxialMaterial('ElasticPP',eleID,K*100, 0.01)
-    #uniaxialMaterial('Elastic',eleID,K*100)
+    #uniaxialMaterial('ElasticPP',eleID,K*100, 0.01)
+    uniaxialMaterial('Elastic',eleID,K*100)
     element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID, '-dir', 4)
     element('zeroLength', eleID+20000, nodeR, nodeC, '-mat', eleID, '-dir', 5)
     equalDOF(nodeR, nodeC, 1, 2, 3, 6)
@@ -216,11 +216,7 @@ Tol = 1e-1
 el_tags = getEleTags()
 
 node_tags = getNodeTags()
-alphaM =0.0811
-betaKcurr = 0.0006161
-betaKcomm = 0.0006161
-betaKinit = 0.0006161
-rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
+ 
 
 
 constraints('Transformation')
@@ -255,6 +251,25 @@ reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150Acc.out',delimiter=" ", header 
 
 ele_618 = pd.DataFrame(pd.read_csv('Element_Acc'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
 
+
+ #%%
+plt.figure()
+plt.plot(disp_20150[:5000,4],ele_618[:5000,4])
+plt.title("Hysteresis of a hinge for Acceleration input 165_1 scaled by 0.9",fontname="Times New Roman",fontweight="bold")
+plt.xlabel("Rotation")
+plt.ylabel("Moment x")
+plt.savefig('Moment_Rotation2_20150_618_Acc_trial_04.pdf')  
+
+
+#%%
+
+
+ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=1,tStart=0.0, tEnd=25.0, scale=50)
+from matplotlib.animation import PillowWriter
+#writer = PillowWriter(fps=30)
+#ani.save("GHB_example.gif", writer=writer)
+
+
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
@@ -270,25 +285,6 @@ plt.plot(ele_618[:,4])
 plt.figure()
 plt.plot(ele_618[:,5])
 #plt.plot((disp_20150[:,4]))
- #%%
-plt.figure()
-plt.plot(disp_20150[:5000,4],ele_618[:5000,4])
-plt.title("Hysteresis of a hinge for Acceleration input 165_1 scaled by 0.9",fontname="Times New Roman",fontweight="bold")
-plt.xlabel("Rotation")
-plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2_20150_618_Acc_trial_03.pdf')  
-
-
-#%%
-
-
-ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=1,tStart=0.0, tEnd=25.0, scale=50)
-from matplotlib.animation import PillowWriter
-#writer = PillowWriter(fps=30)
-#ani.save("GHB_example.gif", writer=writer)
-
-
-
 #%%
 i = 5
 disp5 = pd.DataFrame(pd.read_csv('Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
