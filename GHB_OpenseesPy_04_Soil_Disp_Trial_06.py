@@ -32,7 +32,7 @@ exec(open("./Section_13.py").read())
 exec(open("./Beam_Int_13_2.py").read())
 exec(open("./Materials_13.py").read())
 #exec(open("./Boundary_13.py").read())
-exec(open("./GeoTran_13.py").read())
+exec(open("./GeoTran_13.py").read()) 
 #exec(open("./Elements_13_2.py").read())
 
 
@@ -41,9 +41,9 @@ exec(open("./GeoTran_13.py").read())
 
 '''
 E = 200000000
-A = 1.08
-I = 0.51
-As = 0.9 
+A.51
+As = 0.9  = 1.08
+I = 0
 My = 
 alpha = 0.1 # hardening ratio
 
@@ -63,13 +63,13 @@ ops.section('Aggregator',1,1,'Mz',2,'P')
 
 '''
 
-sc = 1
+sc = 2
 #   Section Comp_gen: secTag E A Iz Iy G J <alphaY> <alphaZ>
 #section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.933, 0.8074527, 0.8074527)
-section('Elastic', 104, 200000000, sc*2.28, sc*0.51, sc*0.51, 76923080, 1.0731)
+section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.0731, 1, 1)
 
 #   beam Integration
-beamIntegration('Lobatto',400,104,5)
+beamIntegration('Lobatto',400,104,10)
 
 exec(open("./Soil_Springs_03_trial.py").read())
 exec(open("./Element_under_soil_bc_03_Trial_Disp.py").read())
@@ -162,19 +162,110 @@ Sup_nodes = np.concatenate((P_1,P_2,P_3,P_4),axis=0)
 
 opsplt.createODB("GHB_bridge_model", "EQ1")
 
+
 g = 9.81
+
+#%% Creating the Dead Load pattern from the masses of the elements
+
+#Read the element definition file directly and delimit the data using comma.
+Ele_scripts = (pd.read_csv('Elements_13_3.py',delimiter=",", error_bad_lines=False,header = None))
+
+#Drop the first column cause it contains primarily "element('forceBeamColumn'," part/
+Elements_Attr = Ele_scripts.loc[:,1:]
+
+#Drop the Nan containing cells it gives you just normally defined elements containing element ID, nodes and mass. Then locate the corresponding column number.
+Elements_Attr = Elements_Attr.dropna()
+
+
+opsplt.createODB("3DFrame","Gravity")
+# Create a Plain load pattern with a Linear TimeSeries
+
+#eleLoad('-ele', *eleTags, '-range', eleTag1, eleTag2, '-type', '-beamUniform', Wy, <Wz>, Wx=0.0, '-beamPoint', Py, <Pz>, xL, Px=0.0, '-beamThermal', *tempPts)
+a = 0
+UnitM = np.zeros([1,Elements_Attr.shape[0]])
+timeSeries('Linear', 1)
+pattern('Plain', 1, 1)
+for i in range(Elements_Attr.shape[0]):
+    
+    EleLength1 = np.sum(((np.array(nodeCoord(int(Elements_Attr.iloc[i, 2]))) - np.array(nodeCoord(int(Elements_Attr.iloc[i, 1]))))**2), axis=0)
+    EleLength = np.sqrt(EleLength1)
+    UnitM[0,a] = g*(Elements_Attr.iloc[i, 6]*EleLength)/2
+    load(int(Elements_Attr.iloc[i, 1]),0.0,0, -UnitM[0,a], 0,0,0)
+    load(int(Elements_Attr.iloc[i, 2]),0.0,0, -UnitM[0,a], 0,0,0) 
+    #eleLoad('-ele',int(Elements_Attr.iloc[i, 0]), '-type', '-beamUniform',0,0,-UnitM[0,a]*100)
+    a = a+1
+
+'''
+eleLoad('-ele',206, '-type', '-beamUniform',70.077279,-70.077279,70.077279 )
+eleLoad('-ele',207, '-type', '-beamUniform',0,-70.077279,70.077279 )
+eleLoad('-ele',208, '-type', '-beamUniform',0,-70.077279,70.077279 )
+eleLoad('-ele',209, '-type', '-beamUniform',0,-70.077279,70.077279 )
+eleLoad('-ele',210, '-type', '-beamUniform',0,-70.077279,70.077279 )
+eleLoad('-ele',211, '-type', '-beamUniform',0,-70.077279,70.077279 )
+'''
+
+#load(3, 0.0, -100000, 0.0,0,0,0)
+#load(4, 0.0, -1000, 0.0)
+
+# Create the system of equation, a sparse solver with partial pivoting
+system('BandSPD')
+
+# Create the constraint handler, the transformation method
+constraints('Plain')
+
+# Create the DOF numberer, the reverse Cuthill-McKee algorithm
+numberer('RCM')
+
+# Create the convergence test, the norm of the residual with a tolerance of
+# 1e-12 and a max number of iterations of 10
+#test('NormDispIncr', 1.0e-8, 10, 3)
+
+# Create the solution algorithm, a Newton-Raphson algorithm
+algorithm('Linear')
+
+# Create the integration scheme, the LoadControl scheme using steps of 0.1
+# Create the analysis object
+analysis('Static')
+
+# ------------------------------
+# End of analysis generation
+# ------------------------------
+
+integrator('LoadControl', 0.1)
+# Run Analysis
+analyze(10)
+
+# ------------------------------
+# Finally perform the analysis
+# ------------------------------
+
+# perform the gravity load analysis, requires 10 steps to reach the load level
+
+
+#opsplt.plot_deformedshape(Model="3DFrame", LoadCase="Gravity")
+
+
+
+ #%%
+
+
+
 
 
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
     #print(i)
-    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*4)
+    timeSeries('Path', int(i+1), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*2)
 
 
 
 cc =0
 
-pattern('MultipleSupport', 1)
+
+
+
+
+pattern('MultipleSupport', 2)
 for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
     cc = cc +1
     #i = 12
@@ -186,6 +277,9 @@ for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
     imposedMotion(int(Sup_nodes[i]),1,cc) # node, dof, gmTag    
     imposedMotion(int(Sup_nodes[i]),2,cc) # node, dof, gmTag 
         
+
+
+loadConst('-time', 0.0)
 maxNumIter = 10
 wipeAnalysis()
 constraints('Transformation')
@@ -225,6 +319,8 @@ Tol = 1e-8
 el_tags = getEleTags()
 
 
+
+
 alphaM =0.0811
 betaKcurr = 0.0006161
 betaKcomm = 0.0006161
@@ -236,7 +332,7 @@ node_tags = getNodeTags()
 constraints('Transformation')
 numberer('Plain')
 system('UmfPack')
-test('NormDispIncr',+1.000000E-4,40,0,1)
+test('NormDispIncr',+1.000000E-4,40)
 algorithm('KrylovNewton')
 integrator('Newmark',+5.000000E-01,+2.500000E-01)
 analysis('Transient')
@@ -252,6 +348,36 @@ print("runtime: "+ str(endtime-starttime))
 #disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
 #plt.figure() 
 #plt.plot(disp[1:5000,1])
+
+
+
+    #%% Modal Analysis
+
+
+# calculate eigenvalues & print results     
+numEigen = 12
+eigenValues = eigen(numEigen)
+#PI = -np.cos(1.0)
+
+ome=[]
+per = []
+freq = []
+for eig in range(len(eigenValues)):
+    ome.append(np.sqrt(eigenValues[eig]))
+    per.append(2*np.pi/ome[-1])
+    freq.append(1/per[-1])
+#eigen(solver='-fullGenLapack', numb)
+
+recorder('Node', '-file', 'MODAL_Node_NodeEigen_EigenVec_1_PY.out', '-time','-nodeRange', 1, 1001, '-dof', 1, 2, 3, 4, 5, 6, 'eigen1')
+record()
+#create nodes
+#exec(open("Elements.py").read())
+#opsplt.plot_model()  # command from Get_Rendering module
+#opsv.plot_model()  # command from ops_vis module
+
+#%% Modal Analysis Drawing
+opsplt.plot_modeshape(2, 1000)
+
 
 
 
@@ -282,7 +408,7 @@ plt.plot(disp_20150[:,5])
 #plt.plot((disp_20150[:,4]))
  #%%
 plt.figure()
-plt.plot(ele_618[0:5000,5])
+plt.plot(ele_618[:,5])
 
 
 #%%
