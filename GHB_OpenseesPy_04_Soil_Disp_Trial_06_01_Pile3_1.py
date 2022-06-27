@@ -27,32 +27,36 @@ model('basic','-ndm',3, '-ndf',6)
 a = 4
 #create nodes
 
-node(105,-70,0,28.281,'-ndf'  ,6)
-node(164,-70,0,26.19919,'-ndf'  ,6)
-node(204,-69.3575,0.6425,26.19919,'-ndf'  ,6)
-node(205,-70.6425,0.6425,26.19919,'-ndf'  ,6)
-node(206,-69.3575,-0.6425,26.19919,'-ndf'  ,6)
-node(207,-70.6425,-0.6425,26.19919,'-ndf'  ,6)
+node(1,0,0,31,'-ndf'  ,6)
+node(163,0,0,28.91819,'-ndf'  ,6)
+node(80,1.98346,1.3025,28.91819,'-ndf'  ,6)
+node(81,1.98346,-1.3025,28.91819,'-ndf'  ,6)
+node(82,-2.013232,1.3025,28.91819,'-ndf'  ,6)
+node(83,-2.013232,-1.3025,28.91819,'-ndf'  ,6)
+node(180,-2.3,-2.3,18,'-ndf'  ,6)
+node(181,2.3,-2.3,18,'-ndf'  ,6)
+node(182,-2.3,2.3,18,'-ndf'  ,6)
+node(183,2.3,2.3,18,'-ndf'  ,6)
+node(17,0,0,-17.6,'-ndf'  ,6)
 
-node(184,-71.875,-1.875,18,'-ndf'  ,6)
-node(185,-68.125,-1.875,18,'-ndf'  ,6)
-node(186,-71.875,1.875,18,'-ndf'  ,6)
-node(187,-68.125,1.875,18,'-ndf'  ,6)
+node(69,0,0,18,'-ndf'  ,6)
 
-node(136,-66.25,3.75,18,'-ndf'  ,6)
+node(152,4.6,4.6,18,'-ndf'  ,6)
+node(153,4.6,4.6,-17.6,'-ndf'  ,6)
+node(154,-4.6,4.6,18,'-ndf'  ,6)
+node(155,-4.6,4.6,-17.6,'-ndf'  ,6)
+node(156,4.6,-4.6,18,'-ndf'  ,6)
+node(157,4.6,-4.6,-17.6,'-ndf'  ,6)
+node(158,-4.6,-4.6,18,'-ndf'  ,6)
+node(159,-4.6,-4.6,-17.6,'-ndf'  ,6)
 
-node(138,-73.75,3.75,18,'-ndf'  ,6)
-node(148,-66.25,-3.75,18,'-ndf'  ,6)
-node(150,-73.75,-3.75,18,'-ndf'  ,6)
 
-node(29,-70,0,18,'-ndf'  ,6)
-node(16,-70,0,-3.718,'-ndf'  ,6)
 
-node(137,-66.25,3.75,-3.718,'-ndf'  ,6)
-node(139,-73.75,3.75,-3.718,'-ndf'  ,6)
-node(149,-66.25,-3.75,-3.718,'-ndf'  ,6)
-node(151,-73.75,-3.75,-3.718,'-ndf'  ,6)
- 
+
+
+
+
+
 
 
 #exec(open("./Node_Coord_13.py").read())
@@ -63,7 +67,62 @@ exec(open("./Materials_13.py").read())
 exec(open("./GeoTran_13.py").read()) 
 #exec(open("./Elements_13_2.py").read())
 
-sc = 1
+
+
+
+
+element('forceBeamColumn',7,1,163,3,7,'-mass',0,'-iter',10,0.00001)
+element('forceBeamColumn',91,83,163,58,91,'-mass',0,'-iter',10,0.00001)
+#   Element RIGID:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',92,163,82,59,92,'-mass',0,'-iter',10,0.00001)
+#   Element RIGID:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',93,163,81,60,93,'-mass',0,'-iter',10,0.00001)
+#   Element 1_Pile:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',106,163,80,69,106,'-mass',0,'-iter',10,0.00001)
+
+element('forceBeamColumn',60,182,82,44,60,'-mass',12.24883,'-iter',10,0.00001)
+#   Element Pier-P3-1:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',61,180,83,45,61,'-mass',12.24883,'-iter',10,0.00001)
+#   Element Pier-P3-1:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',62,181,81,46,62,'-mass',12.24883,'-iter',10,0.00001)
+#   Element Pier-P3-1:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',63,183,80,47,63,'-mass',12.24883,'-iter',10,0.00001)
+
+element('forceBeamColumn',243,69,180,172,243,'-mass',4.07552,'-iter',10,0.00001)
+#   Element Kutu_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',244,180,158,173,244,'-mass',4.07552,'-iter',10,0.00001)
+element('forceBeamColumn',241,152,183,170,241,'-mass',4.07552,'-iter',10,0.00001)
+#   Element Kutu_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',242,183,69,171,242,'-mass',4.07552,'-iter',10,0.00001)
+
+element('forceBeamColumn',239,69,182,168,239,'-mass',4.07552,'-iter',10,0.00001)
+#   Element Kutu_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',240,182,154,169,240,'-mass',4.07552,'-iter',10,0.00001)
+
+element('forceBeamColumn',237,156,181,166,237,'-mass',4.07552,'-iter',10,0.00001)
+#   Element Kutu_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',238,181,69,167,238,'-mass',4.07552,'-iter',10,0.00001)
+
+
+element('forceBeamColumn',96,152,153,63,96,'-mass',2.458776,'-iter',10,0.00001)
+#   Element 1_Pile:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',97,154,155,64,97,'-mass',2.458776,'-iter',10,0.00001)
+#   Element 1_Pile:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',98,156,157,65,98,'-mass',2.458776,'-iter',10,0.00001)
+#   Element 1_Pile:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',99,158,159,66,99,'-mass',2.458776,'-iter',10,0.00001)
+element('forceBeamColumn',100,154,158,67,100,'-mass',1.550988,'-iter',10,0.00001)
+#   Element Kutu_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',101,158,156,68,101,'-mass',4.07552,'-iter',10,0.00001)
+#   Element I_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',102,156,152,1,102,'-mass',1.550988,'-iter',10,0.00001)
+#   Element I_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
+element('forceBeamColumn',103,152,154,2,103,'-mass',1.550988,'-iter',10,0.00001)
+
+element('forceBeamColumn',11,69,17,7,11,'-mass',2.458776,'-iter',10,0.00001)
+
+
+sc = 2
 #   Section Comp_gen: secTag E A Iz Iy G J <alphaY> <alphaZ>
 #section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.933, 0.8074527, 0.8074527)
 section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.0731, 1, 1)
@@ -71,56 +130,7 @@ section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.0731, 
 #   beam Integration
 beamIntegration('Lobatto',400,104,10)
 
-
-
-exec(open("./P2_2_Geo.py").read())
-
-element('forceBeamColumn',8,105,164,4,8,'-mass',0,'-iter',10,0.00001)
-#   Element RIGID:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
-element('forceBeamColumn',187,205,164,120,187,'-mass',0,'-iter',10,0.00001)
-#   Element RIGID:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
-element('forceBeamColumn',188,164,206,121,188,'-mass',0,'-iter',10,0.00001)
-#   Element RIGID:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
-element('forceBeamColumn',189,204,164,122,189,'-mass',0,'-iter',10,0.00001)
-#   Element RIGID:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
-element('forceBeamColumn',190,164,207,123,190,'-mass',0,'-iter',10,0.00001)
-
-element('forceBeamColumn',193,204,187,126,193,'-mass',3.661923,'-iter',10,0.00001)
-#   Element Pier_P2_2_final:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
-element('forceBeamColumn',194,205,186,127,194,'-mass',3.661923,'-iter',10,0.00001)
-element('forceBeamColumn',191,207,184,124,191,'-mass',3.661923,'-iter',10,0.00001)
-#   Element Pier_P2_2_final:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
-element('forceBeamColumn',192,206,185,125,192,'-mass',3.661923,'-iter',10,0.00001)
-#
-
-
-element('forceBeamColumn',247,29,186,176,247,'-mass',4.07552,'-iter',10,0.00001)
-#   Element Kutu_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
-element('forceBeamColumn',248,186,138,177,248,'-mass',4.07552,'-iter',10,0.00001)
-element('forceBeamColumn',245,148,185,174,245,'-mass',4.07552,'-iter',10,0.00001)
-#   Element Kutu_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
-element('forceBeamColumn',246,185,29,175,246,'-mass',4.07552,'-iter',10,0.00001)
-element('forceBeamColumn',251,29,184,180,251,'-mass',4.07552,'-iter',10,0.00001)
-#   Element Kutu_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
-element('forceBeamColumn',252,184,150,181,252,'-mass',4.07552,'-iter',10,0.00001)
-element('forceBeamColumn',249,136,187,178,249,'-mass',4.07552,'-iter',10,0.00001)
-#   Element Kutu_bag:eleTag    NodeI    NodeJ    NIP    secTag    geoTranTag    <-mass massDens>    <-iter maxIters tol> 
-element('forceBeamColumn',250,187,29,179,250,'-mass',4.07552,'-iter',10,0.00001)
-
-element('forceBeamColumn',155,136,138,2,155,'-mass',1.550988,'-iter',10,0.00001)
-element('forceBeamColumn',154,148,136,1,154,'-mass',1.550988,'-iter',10,0.00001)
-element('forceBeamColumn',153,150,148,89,153,'-mass',1.550988,'-iter',10,0.00001)
-element('forceBeamColumn',152,138,150,88,152,'-mass',1.550988,'-iter',10,0.00001)
-element('forceBeamColumn',10,29,16,6,10,'-mass',2.458776,'-iter',10,0.00001)
-
-
-element('forceBeamColumn',86,138,139,55,86,'-mass',2.458776,'-iter',10,0.00001)
-element('forceBeamColumn',85,136,137,54,85,'-mass',2.458776,'-iter',10,0.00001)
-element('forceBeamColumn',94,148,149,61,94,'-mass',2.458776,'-iter',10,0.00001)
-element('forceBeamColumn',95,150,151,62,95,'-mass',2.458776,'-iter',10,0.00001)
-
-
-
+exec(open("./P3_1_Geo.py").read())
 
 
 opsplt.plot_model()
@@ -145,15 +155,15 @@ Fy = 345
 #Top nodes of Piles
 
 Nonl_nodes = [138,136,29,150,148,154,152,69,158,156,99,97,98,93,73,89,108,103,104,120,118,119,114,109,112,126,124,125]
-NN_P22 = Nonl_nodes[0:5]
-Nonl_nodes = NN_P22
+NN_P31 = Nonl_nodes[5:10]
+Nonl_nodes = NN_P31
 for i in range(len(Nonl_nodes[5:10])):
     node(int(Nonl_nodes[i]+20000),nodeCoord(Nonl_nodes[i])[0],nodeCoord(Nonl_nodes[i])[1],nodeCoord(Nonl_nodes[i])[2],'-ndf',6)
     rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], 80000)
     
 #element('forceBeamColumn',99001, 151, 11192,95,400,'-mass', +1.391642E+01,  '-iter',   10,  +1.000000E-12)
 #exec(open("./Elements_13_3.py").read()) #For alteration of nodes for the rotational springs
-opsplt.createODB("Pier22", "Lateral")
+opsplt.createODB("Pier31", "Lateral")
 
 #recorder Node -file DFree123.out -time -node 2 -dof 1 2 3 disp;      
 '''
@@ -181,14 +191,14 @@ recorder('Node', '-file', 'Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '
 '''
 record()
 
-mass(105, 100,100,100,0,0,0)
+mass(1, 100,100,100,0,0,0)
 
-fix(105,0,0,0,1,1,1)
+fix(1,0,0,0,1,1,1)
 
 timeSeries('Linear', 1)
 pattern('Plain', 1, 1)
 
-load(105,0,100000,0,0,0,0)
+load(1,0,100000,0,0,0,0)
 
 system('BandSPD')
 
@@ -215,10 +225,10 @@ analysis('Static')
 
 integrator('LoadControl', 0.1)
 # Run Analysis
-analyze(11)
+analyze(10)
 
 
-opsplt.plot_deformedshape(Model="Pier22", LoadCase="Lateral")
+#opsplt.plot_deformedshape(Model="Pier31", LoadCase="Lateral")
 
 
 #%%
@@ -264,14 +274,14 @@ b3 = np.arange(0,9000,1000).reshape(1,9)
 P34 = a3+b3
 eq_id3 = np.tile(np.concatenate((np.arange(101,101+13,1), [114])),9)
 
-EQ_rec = (eq_id)
+EQ_rec = (eq_id1)
     
 P_1 = P22.flatten(order='f')
 P_2 = P31.flatten(order='f')
 P_3 = P33.flatten(order='f')
 P_4 = P34.flatten(order='f')
     
-Sup_nodes = (P_1)#np.concatenate((P_1,P_2,P_3,P_4),axis=0)
+Sup_nodes = (P_2)#np.concatenate((P_1,P_2,P_3,P_4),axis=0)
 
 
 
@@ -362,17 +372,17 @@ analyze(10)
  #%%
 
 g = 9.81
-opsplt.createODB("Pier22", "EQ1")
+opsplt.createODB("Pier31", "EQ1")
 
 
-for i in range(114):#len(Sup_nodes)-1):
-    i = i+1
+for num in range(39,77):#len(Sup_nodes)-1):
+    i = num
     #print(i)
-    timeSeries('Path', int(i+1), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*2)
+    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*4)
 
 
 
-cc =1
+cc =0
 
 
 
@@ -386,7 +396,7 @@ for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
     
     #timeSeries('Path', int(EQ_rec[i]), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(EQ_rec[i])+'.txt','-factor', 200.0)
     #timeSeries('Path', 102, '-dt', 0.005, '-filePath','EQ_disp_1_102.txt','-factor', 200.0)
-    groundMotion(cc,'Plain','-disp',int(EQ_rec[i]+1))
+    groundMotion(cc,'Plain','-disp',int(EQ_rec[i]))
     imposedMotion(int(Sup_nodes[i]),1,cc) # node, dof, gmTag    
     imposedMotion(int(Sup_nodes[i]),2,cc) # node, dof, gmTag 
         
@@ -459,7 +469,7 @@ endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
 
-opsplt.plot_deformedshape(Model="Pier22", LoadCase="EQ1")
+opsplt.plot_deformedshape(Model="Pier31", LoadCase="EQ1")
 
 #disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
 #plt.figure() 
