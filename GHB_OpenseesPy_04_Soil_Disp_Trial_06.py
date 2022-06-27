@@ -62,8 +62,9 @@ ops.uniaxialMaterial('Elastic',2,E*A)
 ops.section('Aggregator',1,1,'Mz',2,'P')
 
 '''
-
-sc = 2
+fix(106,0,1,0,0,0,0)
+fix(107,0,1,0,0,0,0)
+sc = 1
 #   Section Comp_gen: secTag E A Iz Iy G J <alphaY> <alphaZ>
 #section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.933, 0.8074527, 0.8074527)
 section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.0731, 1, 1)
@@ -111,7 +112,7 @@ recorder('Node', '-file', 'Disp_20150_d2.out', '-time','-node', 20099, '-dof', 1
 recorder('Node', '-file', 'Reac_150_d2.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
 recorder('Node', '-file', 'Reac_20150_d2.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
 #i = 0
-recorder('Element', '-file', 'Element_d2_'+str(int(20000+10))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
+recorder('Element', '-file', 'Element_d2_'+str(int(20000+618))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
 
 #for i in range(len(Nonl_nodes)):
     #rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
@@ -255,7 +256,7 @@ analyze(10)
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
     #print(i)
-    timeSeries('Path', int(i+1), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*2)
+    timeSeries('Path', int(i+1), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*4)
 
 
 
@@ -387,7 +388,7 @@ disp_150 = pd.DataFrame(pd.read_csv('Disp_150_d2.out',delimiter=" ", header = No
 disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
 reac_150 = pd.DataFrame(pd.read_csv('Reac_150_d2.out',delimiter=" ", header = None)).to_numpy() 
 reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
-ele_618 = pd.DataFrame(pd.read_csv('Element_d2_'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
+ele_618 = pd.DataFrame(pd.read_csv('Element_d2_'+str(int(20000+618))+'.out',delimiter=" ", header = None)).to_numpy() 
 
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
@@ -396,12 +397,12 @@ plt.plot(disp_20150[:2400,5],ele_618[:2400,5])
 plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 2",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2_20150_618_Disp_Correction_trial07.pdf')  
+plt.savefig('Moment_Rotation2_20099_618_Disp_Correction_trial10.pdf')  
 
 #plt.figure()
 #plt.plot(disp[1:5000,1])
 
-#%%
+ #%%
 
 plt.figure()
 plt.plot(disp_20150[:,5])

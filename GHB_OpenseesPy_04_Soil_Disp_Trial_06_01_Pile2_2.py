@@ -111,13 +111,8 @@ element('forceBeamColumn',155,136,138,2,155,'-mass',1.550988,'-iter',10,0.00001)
 element('forceBeamColumn',154,148,136,1,154,'-mass',1.550988,'-iter',10,0.00001)
 element('forceBeamColumn',153,150,148,89,153,'-mass',1.550988,'-iter',10,0.00001)
 element('forceBeamColumn',152,138,150,88,152,'-mass',1.550988,'-iter',10,0.00001)
-element('forceBeamColumn',10,29,16,6,10,'-mass',2.458776,'-iter',10,0.00001)
 
 
-element('forceBeamColumn',86,138,139,55,86,'-mass',2.458776,'-iter',10,0.00001)
-element('forceBeamColumn',85,136,137,54,85,'-mass',2.458776,'-iter',10,0.00001)
-element('forceBeamColumn',94,148,149,61,94,'-mass',2.458776,'-iter',10,0.00001)
-element('forceBeamColumn',95,150,151,62,95,'-mass',2.458776,'-iter',10,0.00001)
 
 
 
@@ -147,14 +142,24 @@ Fy = 345
 Nonl_nodes = [138,136,29,150,148,154,152,69,158,156,99,97,98,93,73,89,108,103,104,120,118,119,114,109,112,126,124,125]
 NN_P22 = Nonl_nodes[0:5]
 Nonl_nodes = NN_P22
-for i in range(len(Nonl_nodes[5:10])):
+for i in range(len(Nonl_nodes[0:5])):
     node(int(Nonl_nodes[i]+20000),nodeCoord(Nonl_nodes[i])[0],nodeCoord(Nonl_nodes[i])[1],nodeCoord(Nonl_nodes[i])[2],'-ndf',6)
     rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], 80000)
-    
+
+
+element('forceBeamColumn',10,20029,16,6,10,'-mass',2.458776,'-iter',10,0.00001)
+element('forceBeamColumn',86,20138,139,55,86,'-mass',2.458776,'-iter',10,0.00001)
+element('forceBeamColumn',85,20136,137,54,85,'-mass',2.458776,'-iter',10,0.00001)
+element('forceBeamColumn',94,20148,149,61,94,'-mass',2.458776,'-iter',10,0.00001)
+element('forceBeamColumn',95,20150,151,62,95,'-mass',2.458776,'-iter',10,0.00001)
+
+opsplt.plot_model()
+
+'''    
 #element('forceBeamColumn',99001, 151, 11192,95,400,'-mass', +1.391642E+01,  '-iter',   10,  +1.000000E-12)
 #exec(open("./Elements_13_3.py").read()) #For alteration of nodes for the rotational springs
 opsplt.createODB("Pier22", "Lateral")
-
+'''
 #recorder Node -file DFree123.out -time -node 2 -dof 1 2 3 disp;      
 '''
 recorder('Node', '-file', 'Disp_trial_111192.out', '-time','-node', 111192, '-dof', 1,2,3,4,5,6 , 'disp')
@@ -178,6 +183,7 @@ recorder('Node', '-file', 'Disp_trial_'+str(Nonl_nodes[i])+'.out', '-time','-nod
 recorder('Node', '-file', 'Reac_trial_'+str(Nonl_nodes[i])+'.out', '-time','-node', Nonl_nodes[i], '-dof', 1,2,3,4,5,6 , 'reaction')
 recorder('Node', '-file', 'Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '-time','-node', int(Nonl_nodes[i]+20000), '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '-time','-node', int(Nonl_nodes[i]+20000), '-dof', 1,2,3,4,5,6 , 'reaction')
+'''
 '''
 record()
 
@@ -219,7 +225,7 @@ analyze(11)
 
 
 opsplt.plot_deformedshape(Model="Pier22", LoadCase="Lateral")
-
+'''
 
 #%%
 disp_1 = pd.DataFrame(pd.read_csv('Disp_1_d2.out',delimiter=" ", header = None)).to_numpy() 
@@ -445,7 +451,7 @@ node_tags = getNodeTags()
 constraints('Transformation')
 numberer('Plain')
 system('UmfPack')
-test('NormDispIncr',+1.000000E-8,40)
+test('NormDispIncr',+1.000000E-4,40)
 algorithm('KrylovNewton')
 integrator('Newmark',+5.000000E-01,+2.500000E-01)
 analysis('Transient')
@@ -459,13 +465,13 @@ endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
 
-opsplt.plot_deformedshape(Model="Pier22", LoadCase="EQ1")
+opsplt.plot_deformedshape(Model="Pier22", LoadCase="EQ1")   
 
 #disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
 #plt.figure() 
 #plt.plot(disp[1:5000,1])
 
-#%%
+ #%%
 
 
 ani = opsplt.animate_deformedshape(Model="Pier31",LoadCase="EQ1", dt=10,tStart=0.0, tEnd=20, scale=100)
