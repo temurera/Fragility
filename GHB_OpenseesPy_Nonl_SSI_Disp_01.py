@@ -37,38 +37,12 @@ exec(open("./GeoTran_13.py").read())
 #exec(open("./Elements_13_2.py").read())
 
 
-
-
-
-'''
-E = 200000000
-A.51
-As = 0.9  = 1.08
-I = 0
-My = 
-alpha = 0.1 # hardening ratio
-
-EI = E*I # Or specify EI directly
-
-ops.uniaxialMaterial('Elastic',101,EI)
-ops.uniaxialMaterial('Elastic',102,E*A)
-ops.uniaxialMaterial('Elastic',103,EI)
-ops.uniaxialMaterial('Elastic',104,E*A)
-ops.uniaxialMaterial('Elastic',105,E*A)
-ops.uniaxialMaterial('Elastic',106,EI)
-# or
-# ops.uniaxialMaterial('Steel01',1,My,EI,alpha)
-ops.uniaxialMaterial('Elastic',2,E*A)
-
-ops.section('Aggregator',1,1,'Mz',2,'P')
-
-'''
 fix(106,0,1,0,0,0,0)
 fix(107,0,1,0,0,0,0)
 sc = 1
 #   Section Comp_gen: secTag E A Iz Iy G J <alphaY> <alphaZ>
 #section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.933, 0.8074527, 0.8074527)
-section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.0731, 1, 1)
+section('Elastic', 104, 200000000, 1.08, 0.51, 0.51, 76923080, 1.933, 0.8074527, 0.8074527)
 
 #   beam Integration
 beamIntegration('Lobatto',400,104,10)
@@ -77,10 +51,7 @@ exec(open("./Soil_Springs_03_trial.py").read())
 exec(open("./Element_under_soil_bc_03_Trial_Disp.py").read())
 
 def rot2DSpringModel(eleID, nodeR, nodeC, K):
-    #uniaxialMaterial('Bilin',eleID,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
-    #uniaxialMaterial('ElasticBilin',eleID,K*100, 0.001*K,0.01)
     uniaxialMaterial('ElasticPP',eleID,K*100, 0.01)
-    #uniaxialMaterial('Elastic',eleID,K*100)
     element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID, '-dir', 4)
     element('zeroLength', eleID+20000, nodeR, nodeC, '-mat', eleID, '-dir', 5)
     equalDOF(nodeR, nodeC, 1, 2, 3, 6)
@@ -99,31 +70,11 @@ for i in range(len(Nonl_nodes)):
 #element('forceBeamColumn',99001, 151, 11192,95,400,'-mass', +1.391642E+01,  '-iter',   10,  +1.000000E-12)
 exec(open("./Elements_13_3.py").read()) #For alteration of nodes for the rotational springs
 
-
-#recorder Node -file DFree123.out -time -node 2 -dof 1 2 3 disp;      
-'''
-recorder('Node', '-file', 'Disp_trial_111192.out', '-time','-node', 111192, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_trial_11192.out', '-time','-node', 11192, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_trial_100.out', '-time','-node', 100, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_trial_4761.out', '-time','-node', 4761, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_trial_151.out', '-time','-node', 151, '-dof', 1,2,3,4,5,6 , 'disp')
-'''
 recorder('Node', '-file', 'Disp_150_d2.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Disp_20150_d2.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Reac_150_d2.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
 recorder('Node', '-file', 'Reac_20150_d2.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
-#i = 0
 recorder('Element', '-file', 'Element_d2_'+str(int(20000+618))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
-
-#for i in range(len(Nonl_nodes)):
-    #rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
-'''
-i = 5
-recorder('Node', '-file', 'Disp_trial_'+str(Nonl_nodes[i])+'.out', '-time','-node', Nonl_nodes[i], '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Reac_trial_'+str(Nonl_nodes[i])+'.out', '-time','-node', Nonl_nodes[i], '-dof', 1,2,3,4,5,6 , 'reaction')
-recorder('Node', '-file', 'Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '-time','-node', int(Nonl_nodes[i]+20000), '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '-time','-node', int(Nonl_nodes[i]+20000), '-dof', 1,2,3,4,5,6 , 'reaction')
-'''
 
 ############################# Construction of Support nodes and EQ disp records##########################
 #22
@@ -178,7 +129,6 @@ Elements_Attr = Ele_scripts.loc[:,1:]
 #Drop the Nan containing cells it gives you just normally defined elements containing element ID, nodes and mass. Then locate the corresponding column number.
 Elements_Attr = Elements_Attr.dropna()
 
-
 opsplt.createODB("3DFrame","Gravity")
 # Create a Plain load pattern with a Linear TimeSeries
 
@@ -197,14 +147,7 @@ for i in range(Elements_Attr.shape[0]):
     #eleLoad('-ele',int(Elements_Attr.iloc[i, 0]), '-type', '-beamUniform',0,0,-UnitM[0,a]*100)
     a = a+1
 
-'''
-eleLoad('-ele',206, '-type', '-beamUniform',70.077279,-70.077279,70.077279 )
-eleLoad('-ele',207, '-type', '-beamUniform',0,-70.077279,70.077279 )
-eleLoad('-ele',208, '-type', '-beamUniform',0,-70.077279,70.077279 )
-eleLoad('-ele',209, '-type', '-beamUniform',0,-70.077279,70.077279 )
-eleLoad('-ele',210, '-type', '-beamUniform',0,-70.077279,70.077279 )
-eleLoad('-ele',211, '-type', '-beamUniform',0,-70.077279,70.077279 )
-'''
+
 
 #load(3, 0.0, -100000, 0.0,0,0,0)
 #load(4, 0.0, -1000, 0.0)
@@ -320,9 +263,6 @@ ok = 0
 Tol = 1e-8
 el_tags = getEleTags()
 
-
-
-
 alphaM =0.0811
 betaKcurr = 0.0006161
 betaKcomm = 0.0006161
@@ -348,13 +288,8 @@ endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
 #disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
-#plt.figure() 
-#plt.plot(disp[1:5000,1])
 
-
-
-    #%% Modal Analysis
-
+#%% Modal Analysis
 
 # calculate eigenvalues & print results     
 numEigen = 12
