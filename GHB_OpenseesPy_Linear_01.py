@@ -22,7 +22,7 @@ wipe()
 starttime = datetime.now()
 
 
-N1 = 1000
+N1 = 10
 asd = np.random.uniform(low=-0.5, high =0.5, size=[1,N1])
 
 P_s1 =1+(asd)
@@ -30,7 +30,7 @@ P_s1 =1+(asd)
 #plt.plot(P_s[0,:])
 
 
-N2 = 1000
+N2 = 10
 asd1 = np.random.uniform(low=-0.5, high =0.5, size=[1,N2])
 
 Est1 = 200000000+(asd1*100000000) 
@@ -38,12 +38,15 @@ Est1 = 200000000+(asd1*100000000)
 #plt.plot(Est[0,:])
 # model build
 
-Error=np.zeros([N1,N2])
+Error=np.zeros([100,100])
 
-for i in range(1000):
-    for j in range(1000):
-        P_s = P_s1[0,i]
-        Est = Est1[0,j]
+Est1 = np.linspace(2E8-2E7,2E8+2E7,100)
+P_s1 = np.linspace(0.5,1.5,100)
+
+for ik in range((P_s1).shape[0]):
+    for j in range((Est1).shape[0]):
+        P_s = P_s1[ik]
+        Est = Est1[j]
         model('basic','-ndm',3, '-ndf',6)
         a = 4
         #create nodes
@@ -52,10 +55,39 @@ for i in range(1000):
         exec(open("./Section_13.py").read())
         exec(open("./Beam_Int_13_2.py").read())
         exec(open("./Materials_13.py").read())
-        exec(open("./Boundary_13.py").read())
+        exec(open("./Boundary_13_es.py").read())
         exec(open("./GeoTran_13.py").read()) 
         #exec(open("./Elements_13_2.py").read())
         
+        
+        Spr_coef = np.array([[ 9600, 2950000],[16000, 43300000],[11800, 4100000],[11800, 4100000],[38200, 339000]])
+        
+        asdfs = np.vstack(((np.repeat(Spr_coef[0,0], 5, axis=0)).reshape(5,1),(np.repeat(Spr_coef[1,0], 5, axis=0).reshape(5,1)),(np.repeat(Spr_coef[2,0], 9, axis=0).reshape(9,1)),(np.repeat(Spr_coef[3,0], 9, axis=0).reshape(9,1)),(np.repeat(Spr_coef[4,0], 4, axis=0).reshape(4,1)))).flatten().reshape(32,1)
+        asdfs1 = np.vstack(((np.repeat(Spr_coef[0,1], 5, axis=0)).reshape(5,1),(np.repeat(Spr_coef[1,1], 5, axis=0).reshape(5,1)),(np.repeat(Spr_coef[2,1], 9, axis=0).reshape(9,1)),(np.repeat(Spr_coef[3,1], 9, axis=0).reshape(9,1)),(np.repeat(Spr_coef[4,1], 4, axis=0).reshape(4,1)))).flatten().reshape(32,1)
+        Spr_coef= np.concatenate((asdfs,asdfs1),axis=1)
+        Bd_scripts = (pd.read_csv('Boundary_13_es.py',delimiter="(", error_bad_lines=False,header = None))
+        B1 = Bd_scripts[1].str.split(",",expand = True)
+        # Droping the nodes not containing any spring 
+        B1 = B1[B1[0].str.contains('106')==False]
+        B1 = B1[B1[0].str.contains('107')==False]
+        B11 = (B1[[0,1]]).to_numpy(dtype=int)
+        for bi in range(len(B11)):
+            #node(int(B11[bi,0]+30000),nodeCoord(B11[bi,0])[0],nodeCoord(B11[bi,0])[1],nodeCoord(B11[bi,0])[2],'-ndf',6)
+            B11[bi,1] = (nodeCoord(int(B11[bi,0]))[0])
+        B11 = B11[B11[:,1].argsort()]
+        B11 = np.concatenate((B11,Spr_coef),axis=1)
+        for bi in range(len(B11)):
+            uniaxialMaterial('Elastic',200+bi,int(B11[bi,2]), 0.00)
+            # Material "A416Gr270":    matTag    E    <eta>    <Eneg>  
+            uniaxialMaterial('Elastic',400+bi,int(B11[bi,3]), 0.00)
+            node(int(B11[bi,0]+30000),nodeCoord(int(B11[bi,0]))[0],nodeCoord(int(B11[bi,0]))[1],nodeCoord(int(B11[bi,0]))[2],'-ndf',6)
+            equalDOF(int(B11[bi,0]), int(B11[bi,0]+30000), 3,6)
+            fix(int(B11[bi,0]+30000),1,1,1,1,1,1)
+            element('zeroLength', bi+30000, int(B11[bi,0]+30000), int(B11[bi,0]), '-mat', 200+bi, '-dir', 1)
+            element('zeroLength', bi+30050, int(B11[bi,0]+30000), int(B11[bi,0]), '-mat', 200+bi, '-dir', 2)
+            element('zeroLength', bi+30100, int(B11[bi,0]+30000), int(B11[bi,0]), '-mat', 400+bi, '-dir', 4)
+            element('zeroLength', bi+30150, int(B11[bi,0]+30000), int(B11[bi,0]), '-mat', 400+bi, '-dir', 5)
+            
         
         #fix(106,0,1,0,0,0,0)
         #fix(107,0,1,0,0,0,0)
@@ -96,7 +128,7 @@ for i in range(1000):
         k_w = [0.7, 0.2, 0.1]
         
         
-        #%% Modal Analysis
+        # #%% Modal Analysis
         
         # calculate eigenvalues & print results     
         numEigen = 12
@@ -119,23 +151,18 @@ for i in range(1000):
         #opsplt.plot_model()  # command from Get_Rendering module
         #opsv.plot_model()  # command from ops_vis module
         
-        #%% Modal Analysis Drawing
+        # #%% Modal Analysis Drawing
         #opsplt.plot_modeshape(1, 1000)
-        Error[i,j] = np.sum(per[0:3]-(1/np.array(T_obs)))
+        Error[ik,j] = np.abs(np.sum(per[0:3]-(1/np.array(T_obs))))
 
  
 
-
-
-
-X, Y = np.meshgrid(x, y)
-Z = f(X, Y)
+#%%
+X, Y = np.meshgrid(P_s1, Est1)
+#Z = Error[X, Y]
 fig = plt.figure()
 ax = plt.axes(projection='3d')
-ax.contour3D(X, Y, Z, 50, cmap='binary')
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_zlabel('z');
+ax.plot_surface(X,Y, np.abs(Error))
 
 
 
@@ -294,7 +321,7 @@ for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
 loadConst('-time', 0.0)
 maxNumIter = 10
 wipeAnalysis()
-constraints('Transformation')
+constraints('Transformation') 
 numberer('RCM')
 system('BandGeneral')
 #op.test('EnergyIncr', Tol, maxNumIter)
