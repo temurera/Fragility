@@ -21,6 +21,11 @@ from datetime import datetime
 wipe()
 starttime = datetime.now()
 
+Est = 200000000
+#plt.plot(Est[0,:])
+# model build
+
+P_s = 1
 
 Es = 0.3091327
 # model build
@@ -37,8 +42,8 @@ exec(open("./GeoTran_13.py").read())
 #exec(open("./Elements_13_2.py").read())
 
 
-fix(106,0,1,0,0,0,0)
-fix(107,0,1,0,0,0,0)
+fix(106,0,1,1,0,0,0)
+fix(107,0,1,1,0,0,0)
 sc = 1
 #   Section Comp_gen: secTag E A Iz Iy G J <alphaY> <alphaZ>
 #section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.933, 0.8074527, 0.8074527)
@@ -194,22 +199,17 @@ analyze(10)
  #%%
 
 
-
+EQ_sc = 0.5
 
 
 for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
-    #print(i)
-    timeSeries('Path', int(i+1), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*4)
+    timeSeries('Path', int(i+1), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*EQ_sc)
+    timeSeries('Path', int(i+201), '-dt', 0.005, '-filePath','EQQ1_disp_2_'+str(i)+'.txt','-factor',  g*EQ_sc)
 
 
 
 cc =0
-
-
-
-
-
 pattern('MultipleSupport', 2)
 for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
     cc = cc +1
@@ -218,29 +218,14 @@ for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
     
     #timeSeries('Path', int(EQ_rec[i]), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(EQ_rec[i])+'.txt','-factor', 200.0)
     #timeSeries('Path', 102, '-dt', 0.005, '-filePath','EQ_disp_1_102.txt','-factor', 200.0)
-    groundMotion(cc,'Plain','-disp',int(EQ_rec[i]))
-    imposedMotion(int(Sup_nodes[i]),1,cc) # node, dof, gmTag    
+    groundMotion(cc,'Plain','-disp',int(EQ_rec[i]+1))
+    groundMotion(cc+1001,'Plain','-disp',int(EQ_rec[i]+201))
+    imposedMotion(int(Sup_nodes[i]),1,cc+1001) # node, dof, gmTag    
     imposedMotion(int(Sup_nodes[i]),2,cc) # node, dof, gmTag 
         
 
 
 loadConst('-time', 0.0)
-maxNumIter = 10
-wipeAnalysis()
-constraints('Transformation')
-numberer('RCM')
-system('BandGeneral')
-#op.test('EnergyIncr', Tol, maxNumIter)
-#op.algorithm('ModifiedNewton')
-#NewmarkGamma = 0.5
-#NewmarkBeta = 0.25
-#op.integrator('Newmark', NewmarkGamma, NewmarkBeta)
-#op.analysis('Transient')
-#
-#
-#Nsteps =  int(TmaxAnalysis/ DtAnalysis)
-#
-#ok = op.analyze(Nsteps, DtAnalysis)
 record()
 
 nPts = 5176
@@ -255,13 +240,7 @@ algo= {1:'KrylovNewton', 2: 'SecantNewton' , 3:'ModifiedNewton' , 4: 'RaphsonNew
 #tFinal = TmaxAnalysis
 tFinal = nPts*dt
 time = [tCurrent]
-u1 = [0.0]
-u1_R = [0.0]
-u_spr_D = [0.0]
-u_spr_R = [0.0]         
-ok = 0
-Tol = 1e-8
-el_tags = getEleTags()
+#el_tags = getEleTags()
 
 alphaM =0.0811
 betaKcurr = 0.0006161
@@ -269,12 +248,12 @@ betaKcomm = 0.0006161
 betaKinit = 0.0006161
 rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
 
-node_tags = getNodeTags()
+#node_tags = getNodeTags()
 
 constraints('Transformation')
 numberer('Plain')
 system('UmfPack')
-test('NormDispIncr',+1.000000E-4,40)
+test('NormDispIncr',+1.000000E-3,5,0)
 algorithm('KrylovNewton')
 integrator('Newmark',+5.000000E-01,+2.500000E-01)
 analysis('Transient')
@@ -329,11 +308,11 @@ ele_618 = pd.DataFrame(pd.read_csv('Element_d2_'+str(int(20000+618))+'.out',deli
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
-plt.plot(disp_20150[:2400,5],ele_618[:2400,5])
-plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 2",fontname="Times New Roman",fontweight="bold")
+plt.plot(disp_20150[:5000,5],ele_618[:5000,5])
+plt.title("Hysteresis of a hinge dir4 for Disp input 2 165_1 scaled by 2",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2_20099_618_Disp_Correction_trial10.pdf')  
+plt.savefig('Moment_Rotation2_20099_618_Disp_Correction_trial11_02.pdf')  
 
 #plt.figure()
 #plt.plot(disp[1:5000,1])
@@ -351,10 +330,10 @@ plt.plot(ele_618[:,5])
 #%%
 
 
-ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=10,tStart=0.0, tEnd=20, scale=100)
+ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=10,tStart=0.0, tEnd=20, scale=10)
 from matplotlib.animation import PillowWriter
 writer = PillowWriter(fps=10)
-ani.save("GHB_exampletrOlder_01.gif", writer=writer) 
+ani.save("GHB_exampletrFinal_02.gif", writer=writer) 
 
 
 
