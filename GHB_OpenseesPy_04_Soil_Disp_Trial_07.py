@@ -43,31 +43,6 @@ exec(open("./GeoTran_13.py").read())
 
 
 
-
-
-'''
-E = 200000000
-A.51
-As = 0.9  = 1.08
-I = 0
-My = 
-alpha = 0.1 # hardening ratio
-
-EI = E*I # Or specify EI directly
-
-ops.uniaxialMaterial('Elastic',101,EI)
-ops.uniaxialMaterial('Elastic',102,E*A)
-ops.uniaxialMaterial('Elastic',103,EI)
-ops.uniaxialMaterial('Elastic',104,E*A)
-ops.uniaxialMaterial('Elastic',105,E*A)
-ops.uniaxialMaterial('Elastic',106,EI)
-# or
-# ops.uniaxialMaterial('Steel01',1,My,EI,alpha)
-ops.uniaxialMaterial('Elastic',2,E*A)
-
-ops.section('Aggregator',1,1,'Mz',2,'P')
-
-'''
 fix(106,0,1,1,0,0,0)
 fix(107,0,1,1,0,0,0)
 
@@ -90,10 +65,10 @@ exec(open("./Element_under_soil_bc_03_Trial_Disp.py").read())
 def rot2DSpringModel(eleID, nodeR, nodeC, K):
     #uniaxialMaterial('Bilin',eleID,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
     #uniaxialMaterial('ElasticBilin',eleID,K*100, 0.001*K,0.01)
-    uniaxialMaterial('ElasticPP',eleID,K*100, 0.01)
+    uniaxialMaterial('ElasticPP',eleID+10000,K*100, 0.01)
     #uniaxialMaterial('Elastic',eleID,K*100)
-    element('zeroLength', eleID, nodeR, nodeC, '-mat', eleID, '-dir', 4)
-    element('zeroLength', eleID+20000, nodeR, nodeC, '-mat', eleID, '-dir', 5)
+    element('zeroLength', eleID+10000, nodeR, nodeC, '-mat', eleID+10000, '-dir', 4)
+    element('zeroLength', eleID+20000, nodeR, nodeC, '-mat', eleID+10000, '-dir', 5)
     equalDOF(nodeR, nodeC, 1, 2, 3, 6)
     return
 
@@ -105,7 +80,7 @@ Nonl_nodes = [138,136,29,150,148,154,152,69,158,156,99,97,98,93,73,89,108,103,10
 
 for i in range(len(Nonl_nodes)):
     node(int(Nonl_nodes[i]+20000),nodeCoord(Nonl_nodes[i])[0],nodeCoord(Nonl_nodes[i])[1],nodeCoord(Nonl_nodes[i])[2],'-ndf',6)
-    rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], 80000)
+    rot2DSpringModel(int(i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], 80000)
     
 #element('forceBeamColumn',99001, 151, 11192,95,400,'-mass', +1.391642E+01,  '-iter',   10,  +1.000000E-12)
 exec(open("./Elements_13_3.py").read()) #For alteration of nodes for the rotational springs
@@ -128,6 +103,12 @@ recorder('Node', '-file', 'Reac_152_r2.out', '-time','-node', 152, '-dof', 4 , '
 recorder('Node', '-file', 'Reac_152_d2.out', '-time','-node', 152, '-dof', 4 , 'disp')
 recorder('Node', '-file', 'Reac_20152_r2.out', '-time','-node', 20152, '-dof', 4 , 'reaction')
 recorder('Node', '-file', 'Reac_20152_d2.out', '-time','-node', 20152, '-dof', 4 , 'disp')
+
+recorder('Element', '-file', 'Element_'+str(int(20000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 20152, 'force' )
+recorder('Element', '-file', 'Element_'+str(int(10000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 10152, 'force' )
+recorder('Element', '-file', 'Element_d'+str(int(20000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 20152, 'disp' )
+recorder('Element', '-file', 'Element_d'+str(int(10000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 10152, 'disp' )
+
 #i = 0
 recorder('Element', '-file', 'Element_d2_'+str(int(20000+618))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
 
@@ -184,7 +165,7 @@ opsplt.createODB("GHB_bridge_model", "EQ1")
 g = 9.81
 
 #%% Creating the Dead Load pattern from the masses of the elements
-
+'''
 #Read the element definition file directly and delimit the data using comma.
 Ele_scripts = (pd.read_csv('Elements_13_3.py',delimiter=",", error_bad_lines=False,header = None))
 
@@ -214,12 +195,14 @@ for i in range(Elements_Attr.shape[0]):
     a = a+1
 
 '''
+
+'''
 eleLoad('-ele',206, '-type', '-beamUniform',70.077279,-70.077279,70.077279 )
 eleLoad('-ele',207, '-type', '-beamUniform',0,-70.077279,70.077279 )
 eleLoad('-ele',208, '-type', '-beamUniform',0,-70.077279,70.077279 )
 eleLoad('-ele',209, '-type', '-beamUniform',0,-70.077279,70.077279 )
 eleLoad('-ele',210, '-type', '-beamUniform',0,-70.077279,70.077279 )
-eleLoad('-ele',211, '-type', '-beamUniform',0,-70.077279,70.077279 )
+eleLoad('-ele',211, '-type', '-beamUniform',0,-70.077279,70.077279 )'''
 '''
 
 #load(3, 0.0, -100000, 0.0,0,0,0)
@@ -252,7 +235,7 @@ analysis('Static')
 integrator('LoadControl', 0.1)
 # Run Analysis
 analyze(10)
-
+'''
 # ------------------------------
 # Finally perform the analysis
 # ------------------------------
@@ -274,7 +257,7 @@ for i in range(114):#len(Sup_nodes)-1):
     i = 1+i
     #print(i)
     timeSeries('Path', int(i+1), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*EQ_sc)
-    timeSeries('Path', int(i+115), '-dt', 0.005, '-filePath','EQQ1_disp_2_'+str(i)+'.txt','-factor',  g*EQ_sc*4)
+    #timeSeries('Path', int(i+115), '-dt', 0.005, '-filePath','EQQ1_disp_2_'+str(i)+'.txt','-factor',  g*EQ_sc*4)
 
 
 
@@ -285,7 +268,7 @@ cc =0
 
 
 
-pattern('MultipleSupport', 2)
+pattern('MultipleSupport', 1)
 for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
     cc = cc +1
     #i = 12
@@ -293,21 +276,21 @@ for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
     
     #timeSeries('Path', int(EQ_rec[i]), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(EQ_rec[i])+'.txt','-factor', 200.0)
     #timeSeries('Path', 102, '-dt', 0.005, '-filePath','EQ_disp_1_102.txt','-factor', 200.0)
-    groundMotion(cc,'Plain','-disp',int(EQ_rec[i])+1)
+    groundMotion(cc,'Series','-disp',int(EQ_rec[i])+1)
     imposedMotion(int(Sup_nodes[i]),2,cc) # node, dof, gmTag
-    groundMotion(cc+732,'Plain','-disp',int(EQ_rec[i]+115))
-    imposedMotion(int(Sup_nodes[i]),1,cc+732) # node, dof, gmTag    
+    #groundMotion(cc+732,'Plain','-disp',int(EQ_rec[i]+115))
+    #imposedMotion(int(Sup_nodes[i]),2,cc+732) # node, dof, gmTag    
 
     
         
 
-
+'''
 loadConst('-time', 0.0)
 maxNumIter = 10
 wipeAnalysis()
 constraints('Transformation')
 numberer('RCM')
-system('BandGeneral')
+system('BandGeneral')'''
 #op.test('EnergyIncr', Tol, maxNumIter)
 #op.algorithm('ModifiedNewton')
 #NewmarkGamma = 0.5
@@ -353,7 +336,7 @@ rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
 node_tags = getNodeTags()
 
 constraints('Transformation')
-numberer('Plain')
+numberer('RCM')
 system('UmfPack')
 test('NormDispIncr',+1.000000E-4,10)
 algorithm('KrylovNewton')
@@ -399,7 +382,7 @@ record()
 #opsv.plot_model()  # command from ops_vis module
 
 #%% Modal Analysis Drawing
-opsplt.plot_modeshape(2, 1000)
+opsplt.plot_modeshape(1, 1000)
 
 
 
@@ -418,10 +401,12 @@ disp_152 = pd.DataFrame(pd.read_csv('Reac_152_d2.out', delimiter=" ", header = N
 reac_20152 = pd.DataFrame(pd.read_csv('Reac_20152_r2.out',delimiter=" ", header = None)).to_numpy() 
 disp_10152 = pd.DataFrame(pd.read_csv('Reac_20152_d2.out',delimiter=" ", header = None)).to_numpy() 
 
+ele_2 = pd.DataFrame(pd.read_csv('Element_'+str(int(20000+152))+'.out',delimiter=" ", header = None)).to_numpy() 
+
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
-plt.plot(disp_20150[:5000,4],ele_618[:5000,4])
+plt.plot(disp_150[:4900,4],ele_618[:4900,4])
 plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 2",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
@@ -430,10 +415,10 @@ plt.savefig('Moment_Rotation2_20099_618_Disp_Correction_trial10.pdf')
 #plt.figure()
 #plt.plot(disp[1:5000,1])
 
- #%%
+#%%
 
 plt.figure()
-plt.plot(disp_152[:5000,1],reac_152[:5000,1])
+plt.plot(disp_20150[:4900,1],disp_20150[:4900,2])
 #plt.plot((disp_20150[:,4]))
  #%%
 plt.figure()
@@ -446,7 +431,7 @@ plt.plot(ele_618[:,5])
 ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=10,tStart=0.0, tEnd=20, scale=100)
 from matplotlib.animation import PillowWriter
 writer = PillowWriter(fps=10)
-ani.save("GHB_exampletrOlder_02.gif", writer=writer) 
+ani.save("GHB_exampletrOlder_03.gif", writer=writer) 
 
 
 
