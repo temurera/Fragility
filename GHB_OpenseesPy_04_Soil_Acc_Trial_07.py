@@ -245,46 +245,19 @@ analyze(10)
 
 #opsplt.plot_deformedshape(Model="3DFrame", LoadCase="Gravity")
 
+      
+g = 9.81
+timeSeries('Path', 1, '-dt', 0.005, '-filePath','Matched_165-1.A.txt', '-factor', g*18)
+timeSeries('Path', 2, '-dt', 0.005, '-filePath','Matched_165-1.A.txt', '-factor', g*18)    
 
-
-  #%%
-
-EQ_sc = 4
-
-
-
-for i in range(114):#len(Sup_nodes)-1):
-    i = 1+i
-    #print(i)
-    timeSeries('Path', int(i), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*EQ_sc)
-    #timeSeries('Path', int(i+115), '-dt', 0.005, '-filePath','EQQ1_disp_2_'+str(i)+'.txt','-factor',  g*EQ_sc*4)
-
-
-
-
-
-
-
-
-
-pattern('MultipleSupport', 4)
-cc =0
-
-for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
-    cc = cc +1
-    #timeSeries('Path', int(EQ_rec[i]), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(EQ_rec[i])+'.txt','-factor', 200.0)
-    #timeSeries('Path', 102, '-dt', 0.005, '-filePath','EQ_disp_1_102.txt','-factor', 200.0)
-    groundMotion(cc,'Plain','-disp',int(EQ_rec[i]))
-    imposedMotion(int(Sup_nodes[i]),2,cc) # node, dof, gmTag
-    #groundMotion(cc+732,'Plain','-disp',int(EQ_rec[i]+115))
-    #imposedMotion(int(Sup_nodes[i]),2,cc+732) # node, dof, gmTag    
-
-    
-        
-
-
-
-'''constraints('Transformation')
+# Create UniformExcitation load pattern
+# tag dir 
+pattern('UniformExcitation',  1,   1,  '-accel', 1)
+pattern('UniformExcitation',  2,   2,  '-accel', 2)
+'''
+maxNumIter = 10
+wipeAnalysis()
+constraints('Transformation')
 numberer('RCM')
 system('BandGeneral')'''
 #op.test('EnergyIncr', Tol, maxNumIter)
@@ -332,9 +305,9 @@ rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
 node_tags = getNodeTags()
 
 constraints('Transformation')
-numberer('RCM')
+numberer('Plain')
 system('UmfPack')
-test('NormDispIncr',+1.000000E-2,10)
+test('NormDispIncr',+1.000000E-4,40)
 algorithm('KrylovNewton')
 integrator('Newmark',+5.000000E-01,+2.500000E-01)
 analysis('Transient')
@@ -347,93 +320,55 @@ analyze(5176,0.005)
 endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
-wipe()
-
 #disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
 #plt.figure() 
 #plt.plot(disp[1:5000,1])
 
 
+#%% Loading the disp and reac results
 
-     #%% Modal Analysis
+disp_150 = pd.DataFrame(pd.read_csv('Disp_150Acc.out',delimiter=" ", header = None)).to_numpy() 
+disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150Acc.out',delimiter=" ", header = None)).to_numpy() 
+reac_150 = pd.DataFrame(pd.read_csv('Reac_150Acc.out',delimiter=" ", header = None)).to_numpy() 
+reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150Acc.out',delimiter=" ", header = None)).to_numpy() 
 
-
-# calculate eigenvalues & print results     
-numEigen = 12
-eigenValues = eigen(numEigen)
-#PI = -np.cos(1.0)
-
-ome=[]
-per = []
-freq = []
-for eig in range(len(eigenValues)):
-    ome.append(np.sqrt(eigenValues[eig]))
-    per.append(2*np.pi/ome[-1])
-    freq.append(1/per[-1])
-#eigen(solver='-fullGenLapack', numb)
-
-recorder('Node', '-file', 'MODAL_Node_NodeEigen_EigenVec_1_PY.out', '-time','-nodeRange', 1, 1001, '-dof', 1, 2, 3, 4, 5, 6, 'eigen1')
-record()
-#create nodes
-#exec(open("Elements.py").read())
-#opsplt.plot_model()  # command from Get_Rendering module
-#opsv.plot_model()  # command from ops_vis module
-
-#%% Modal Analysis Drawing
-opsplt.plot_modeshape(1, 1000)
+ele_618 = pd.DataFrame(pd.read_csv('Element_Acc'+str(int(20000+10))+'.out',delimiter=" ", header = None)).to_numpy() 
 
 
+ #%%
+plt.figure()
+plt.plot(disp_20150[:5000,5],ele_618[:5000,5])
+plt.title("Hysteresis of a hinge for Acceleration input 165_1 scaled by 18",fontname="Times New Roman",fontweight="bold")
+plt.xlabel("Rotation")
+plt.ylabel("Moment x")
+plt.savefig('Moment_Rotation2_20150_618_Acc_trial_10_5.pdf')  
 
 
- #%% Loading the disp and reac results
-
-disp_150 = pd.DataFrame(pd.read_csv('Disp_150_d2.out',delimiter=" ", header = None)).to_numpy() 
-disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
-reac_150 = pd.DataFrame(pd.read_csv('Reac_150_d2.out',delimiter=" ", header = None)).to_numpy() 
-reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
-ele_618 = pd.DataFrame(pd.read_csv('Element_d2_'+str(int(20000+618))+'.out',delimiter=" ", header = None)).to_numpy() 
+#%%
 
 
-reac_152 = pd.DataFrame(pd.read_csv('Reac_152_r2.out', delimiter=" ", header = None)).to_numpy() 
-disp_152 = pd.DataFrame(pd.read_csv('Reac_152_d2.out', delimiter=" ", header = None)).to_numpy() 
-reac_20152 = pd.DataFrame(pd.read_csv('Reac_20152_r2.out',delimiter=" ", header = None)).to_numpy() 
-disp_10152 = pd.DataFrame(pd.read_csv('Reac_20152_d2.out',delimiter=" ", header = None)).to_numpy() 
+ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=1,tStart=0.0, tEnd=25.0, scale=50)
+from matplotlib.animation import PillowWriter
+#writer = PillowWriter(fps=30)
+#ani.save("GHB_example.gif", writer=writer)
 
-ele_2 = pd.DataFrame(pd.read_csv('Element_'+str(int(20000+152))+'.out',delimiter=" ", header = None)).to_numpy() 
 
 #%%
 #disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
 plt.figure()
-plt.plot(disp_20150[:4900,4],ele_618[:4900,4])
-plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 2",fontname="Times New Roman",fontweight="bold")
-plt.xlabel("Rotation")
-plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2_20099_618_Disp_Correction_trial10.pdf')  
-
+plt.plot((disp_150[0:5000,4]))
 #plt.figure()
 #plt.plot(disp[1:5000,1])
 
 #%%
 
 plt.figure()
-plt.plot(disp_20150[:4900,1],disp_20150[:4900,2])
-#plt.plot((disp_20150[:,4]))
- #%%
+plt.plot(ele_618[:,4])
+
 plt.figure()
 plt.plot(ele_618[:,5])
-
-
+#plt.plot((disp_20150[:,4]))
 #%%
-
-
-ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=10,tStart=0.0, tEnd=20, scale=100)
-from matplotlib.animation import PillowWriter
-writer = PillowWriter(fps=10)
-ani.save("GHB_exampletrOlder_010_1.gif", writer=writer) 
-
-
-
- #%%
 i = 5
 disp5 = pd.DataFrame(pd.read_csv('Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
 reac5 = pd.DataFrame(pd.read_csv('Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
@@ -448,4 +383,4 @@ reac51 = pd.DataFrame(pd.read_csv('Reac_trial_'+(str(Nonl_nodes[i]))+'.out',deli
 #pf, sfac_a, tkt = input_parameters
 #opsv.plot_defo(1000,1, fmt_interp='b-', az_el=(6., 30.),fig_wi_he=(50,200))
 #%%
-opsplt.plot_model()
+opsplt.plot_model('nodes')
