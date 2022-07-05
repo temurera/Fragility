@@ -337,7 +337,7 @@ ele_618 = pd.DataFrame(pd.read_csv('Element_Acc'+str(int(20000+10))+'.out',delim
 
  #%%
 plt.figure()
-plt.plot(disp_20150[:5000,5],ele_618[:5000,5])
+plt.plot(disp_20150[:5000,4],ele_618[:5000,4])
 plt.title("Hysteresis of a hinge for Acceleration input 165_1 scaled by 18",fontname="Times New Roman",fontweight="bold")
 plt.xlabel("Rotation")
 plt.ylabel("Moment x")
