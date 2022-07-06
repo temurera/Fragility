@@ -76,38 +76,23 @@ def rot2DSpringModel(eleID, nodeR, nodeC, K):
 
 Nonl_nodes = [138,136,29,150,148,154,152,69,158,156,99,97,98,93,73,89,108,103,104,120,118,119,114,109,112,126,124,125]
 
+pile_ele = [86,	85,	10,	95,	94,	97,	96,	11,	99,	98,	618, 626, 616, 614,	610, 612, 624, 620, 622, 638, 634, 636, 632, 628, 630, 644, 640, 642]
+
+
 for i in range(len(Nonl_nodes)):
     node(int(Nonl_nodes[i]+20000),nodeCoord(Nonl_nodes[i])[0],nodeCoord(Nonl_nodes[i])[1],nodeCoord(Nonl_nodes[i])[2],'-ndf',6)
     rot2DSpringModel(int(i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], 80000)
     
-#element('forceBeamColumn',99001, 151, 11192,95,400,'-mass', +1.391642E+01,  '-iter',   10,  +1.000000E-12)
 exec(open("./Elements_13_3.py").read()) #For alteration of nodes for the rotational springs
 
 
-#recorder Node -file DFree123.out -time -node 2 -dof 1 2 3 disp;      
-'''
-recorder('Node', '-file', 'Disp_trial_111192.out', '-time','-node', 111192, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_trial_11192.out', '-time','-node', 11192, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_trial_100.out', '-time','-node', 100, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_trial_4761.out', '-time','-node', 4761, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_trial_151.out', '-time','-node', 151, '-dof', 1,2,3,4,5,6 , 'disp')
-'''
-recorder('Node', '-file', 'Disp_150_d2.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_20150_d2.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Element', '-file', 'Element_d'+str(int(10000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 10152, 'disp' )
-recorder('Element', '-file', 'Element_d2_'+str(int(20000+618))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
-recorder('Element', '-file', 'Element_d2_'+str(int(20000+1))+'.out',  '-time', '-closeOnWrite', '-ele', 20001, 'disp' )
-recorder('Element', '-file', 'Element_f2_'+str(int(20000+1))+'.out',  '-time', '-closeOnWrite', '-ele', 20001, 'force' )
+# Generating Recorders for Nonl Nodes and corresponding elements to read element forces
+for jk in range(len(Nonl_nodes)):
+    recorder('Node', '-file', 'Disp_'+str(20000+Nonl_nodes[jk])+'_d5.out', '-time','-node', int(20000+Nonl_nodes[jk]), '-dof', 4,5 , 'disp')
+    recorder('Element', '-file', 'Element_d2_'+str(int(pile_ele[jk]))+'.out',  '-time', '-closeOnWrite', '-ele', int(pile_ele[jk]), 'force' )
 
-#for i in range(len(Nonl_nodes)):
-    #rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
-'''
-i = 5
-recorder('Node', '-file', 'Disp_trial_'+str(Nonl_nodes[i])+'.out', '-time','-node', Nonl_nodes[i], '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Reac_trial_'+str(Nonl_nodes[i])+'.out', '-time','-node', Nonl_nodes[i], '-dof', 1,2,3,4,5,6 , 'reaction')
-recorder('Node', '-file', 'Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '-time','-node', int(Nonl_nodes[i]+20000), '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out', '-time','-node', int(Nonl_nodes[i]+20000), '-dof', 1,2,3,4,5,6 , 'reaction')
-'''
+
+    
 
 ############################# Construction of Support nodes and EQ disp records##########################
 #22
@@ -154,7 +139,7 @@ g = 9.81
 #%% Creating the Dead Load pattern from the masses of the elements
 
 #Read the element definition file directly and delimit the data using comma.
-Ele_scripts = (pd.read_csv('Elements_13_3.py',delimiter=",", error_bad_lines=False,header = None))
+Ele_scripts = (pd.read_csv('Elements_13_3.py',delimiter=",", error_bad_lines=False,warn_bad_lines=False,header = None))
 
 #Drop the first column cause it contains primarily "element('forceBeamColumn'," part/
 Elements_Attr = Ele_scripts.loc[:,1:]
@@ -180,7 +165,13 @@ for i in range(Elements_Attr.shape[0]):
     load(int(Elements_Attr.iloc[i, 2]),0.0,0, -UnitM[0,a], 0,0,0) 
     #eleLoad('-ele',int(Elements_Attr.iloc[i, 0]), '-type', '-beamUniform',0,0,-UnitM[0,a]*100)
     a = a+1
-
+''' Pile elements are obtained using following lines after reading the element file.
+However the result is added manually for the sake of performance.
+pile_ele = np.zeros([len(Nonl_nodes),1])
+for i in range(len(Nonl_nodes)):
+    pile_ele[i,] = int(Elements_Attr[Elements_Attr[2]==Nonl_nodes[i]+20000][1])
+    print(Nonl_nodes[i])
+'''
 
 
 '''
@@ -236,7 +227,7 @@ analyze(10)
 
   #%%
 
-EQ_sc = 2
+EQ_sc = 4
 
 
 
@@ -295,26 +286,12 @@ record()
 
 nPts = 5176
 dt = 0.005
-tCurrent = getTime()
+
 
 # for gravity analysis, load control is fine, 0.1 is the load factor increment (http://opensees.berkeley.edu/wiki/index.php/Load_Control)
 
 testT = {1:'NormDispIncr', 2: 'RelativeEnergyIncr', 3:'EnergyIncr', 4: 'RelativeNormUnbalance',5: 'RelativeNormDispIncr', 6: 'NormUnbalance'}
 algo= {1:'KrylovNewton', 2: 'SecantNewton' , 3:'ModifiedNewton' , 4: 'RaphsonNewton',5: 'PeriodicNewton', 6: 'BFGS', 7: 'Broyden', 8: 'NewtonLineSearch'}
-
-#tFinal = TmaxAnalysis
-tFinal = nPts*dt
-time = [tCurrent]
-u1 = [0.0]
-u1_R = [0.0]
-u_spr_D = [0.0]
-u_spr_R = [0.0]         
-ok = 0
-Tol = 1e-8
-el_tags = getEleTags()
-
-
-
 
 alphaM =0.0811
 betaKcurr = 0.0006161
@@ -336,46 +313,33 @@ numb = 12
 numEigen = 12
 eigenValues = eigen(numEigen)
 #PI = -np.cos(1.0)
-analyze(5176,0.005)
+analyze(nPts,dt)
 endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
 wipe()
 
-#disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
-#plt.figure() 
-#plt.plot(disp[1:5000,1])
-
-
-
-     #%% Modal Analysis
-
-
-# calculate eigenvalues & print results     
-numEigen = 12
-eigenValues = eigen(numEigen)
-#PI = -np.cos(1.0)
-
-ome=[]
-per = []
-freq = []
-for eig in range(len(eigenValues)):
-    ome.append(np.sqrt(eigenValues[eig]))
-    per.append(2*np.pi/ome[-1])
-    freq.append(1/per[-1])
-#eigen(solver='-fullGenLapack', numb)
-
-recorder('Node', '-file', 'MODAL_Node_NodeEigen_EigenVec_1_PY.out', '-time','-nodeRange', 1, 1001, '-dof', 1, 2, 3, 4, 5, 6, 'eigen1')
-record()
-#create nodes
-#exec(open("Elements.py").read())
-#opsplt.plot_model()  # command from Get_Rendering module
-#opsv.plot_model()  # command from ops_vis module
 
 #%% Modal Analysis Drawing
 ele_20001 = pd.DataFrame(pd.read_csv('Element_f2_'+str(int(20000+1))+'.out',delimiter=" ", header = None)).to_numpy() 
 
  #%% Loading the disp and reac results
+ 
+disp4 = np.zeros([len(Nonl_nodes),nPts+11,2]) 
+disp5 = np.zeros([len(Nonl_nodes),nPts+11,2]) 
+ele_res = np.zeros([len(Nonl_nodes),nPts+11,13])
+for jk in range(len(Nonl_nodes)):
+    disp5[jk,:,:] = pd.DataFrame(pd.read_csv('Disp_'+str(20000+Nonl_nodes[jk])+'_d5.out',delimiter=" ", header = None)).to_numpy() 
+    disp4[jk,:,:] = pd.DataFrame(pd.read_csv('Disp_'+str(10000+Nonl_nodes[jk])+'_d4.out',delimiter=" ", header = None)).to_numpy() 
+    ele_res[jk,:,:] = pd.DataFrame(pd.read_csv('Element_d2_'+str(int(pile_ele[jk]))+'.out',delimiter=" ", header = None)).to_numpy() 
+
+
+#%%
+
+for jk in range(len(Nonl_nodes)-10):
+    plt.figure()
+    plt.plot(disp4[jk,:,1],ele_res[jk,:,5])
+
 
 disp_150 = pd.DataFrame(pd.read_csv('Disp_150_d2.out',delimiter=" ", header = None)).to_numpy() 
 disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
@@ -406,13 +370,12 @@ plt.savefig('Moment_Rotation2_20150_618_Disp_5.pdf')
 #%%
 
 plt.figure()
-#plt.plot(ele_618[:4900,5])
-plt.plot(reac_150[:4900,5])
-plt.legend(['20150','150'])
+plt.plot(ele_res[0,:,5])
 #plt.plot((disp_20150[:,4]))
  #%%
+
 plt.figure()
-plt.plot(ele_618[:,5])
+plt.plot(disp4[jk,:,1])
 
 
 #%%

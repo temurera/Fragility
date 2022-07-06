@@ -51,9 +51,10 @@ fix(130,0,0,1,0,0,0)
 fix(132,0,0,1,0,0,0)
 fix(134,0,0,1,0,0,0)
 
+sc = 1
 #   Section Comp_gen: secTag E A Iz Iy G J <alphaY> <alphaZ>
 #section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.933, 0.8074527, 0.8074527)
-section('Elastic', 104, 200000000, 1.08, 0.51, 0.51, 76923080, 1.0731, 1, 1)
+section('Elastic', 104, 200000000, sc*1.08, sc*0.51, sc*0.51, 76923080, 1.0731, 1, 1)
 
 #   beam Integration
 beamIntegration('Lobatto',400,104,10)
@@ -71,7 +72,8 @@ def rot2DSpringModel(eleID, nodeR, nodeC, K):
     equalDOF(nodeR, nodeC, 1, 2, 3, 6)
     return
 
-
+Sec_mod = 0.1871
+Fy = 345
 #Top nodes of Piles
 
 Nonl_nodes = [138,136,29,150,148,154,152,69,158,156,99,97,98,93,73,89,108,103,104,120,118,119,114,109,112,126,124,125]
@@ -94,10 +96,21 @@ recorder('Node', '-file', 'Disp_trial_151.out', '-time','-node', 151, '-dof', 1,
 '''
 recorder('Node', '-file', 'Disp_150_d2.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Disp_20150_d2.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
+recorder('Node', '-file', 'Reac_150_d2.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
+recorder('Node', '-file', 'Reac_20150_d2.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
+
+recorder('Node', '-file', 'Reac_152_r2.out', '-time','-node', 152, '-dof', 4 , 'reaction')
+recorder('Node', '-file', 'Reac_152_d2.out', '-time','-node', 152, '-dof', 4 , 'disp')
+recorder('Node', '-file', 'Reac_20152_r2.out', '-time','-node', 20152, '-dof', 4 , 'reaction')
+recorder('Node', '-file', 'Reac_20152_d2.out', '-time','-node', 20152, '-dof', 4 , 'disp')
+
+recorder('Element', '-file', 'Element_'+str(int(20000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 20152, 'force' )
+recorder('Element', '-file', 'Element_'+str(int(10000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 10152, 'force' )
+recorder('Element', '-file', 'Element_d'+str(int(20000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 20152, 'disp' )
 recorder('Element', '-file', 'Element_d'+str(int(10000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 10152, 'disp' )
+
+#i = 0
 recorder('Element', '-file', 'Element_d2_'+str(int(20000+618))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
-recorder('Element', '-file', 'Element_d2_'+str(int(20000+1))+'.out',  '-time', '-closeOnWrite', '-ele', 20001, 'disp' )
-recorder('Element', '-file', 'Element_f2_'+str(int(20000+1))+'.out',  '-time', '-closeOnWrite', '-ele', 20001, 'force' )
 
 #for i in range(len(Nonl_nodes)):
     #rot2DSpringModel(int(20000+i), int(Nonl_nodes[i]+20000), Nonl_nodes[i], Fy*Sec_mod)
@@ -152,7 +165,7 @@ opsplt.createODB("GHB_bridge_model", "EQ1")
 g = 9.81
 
 #%% Creating the Dead Load pattern from the masses of the elements
-
+'''
 #Read the element definition file directly and delimit the data using comma.
 Ele_scripts = (pd.read_csv('Elements_13_3.py',delimiter=",", error_bad_lines=False,header = None))
 
@@ -181,7 +194,7 @@ for i in range(Elements_Attr.shape[0]):
     #eleLoad('-ele',int(Elements_Attr.iloc[i, 0]), '-type', '-beamUniform',0,0,-UnitM[0,a]*100)
     a = a+1
 
-
+'''
 
 '''
 eleLoad('-ele',206, '-type', '-beamUniform',70.077279,-70.077279,70.077279 )
@@ -190,7 +203,7 @@ eleLoad('-ele',208, '-type', '-beamUniform',0,-70.077279,70.077279 )
 eleLoad('-ele',209, '-type', '-beamUniform',0,-70.077279,70.077279 )
 eleLoad('-ele',210, '-type', '-beamUniform',0,-70.077279,70.077279 )
 eleLoad('-ele',211, '-type', '-beamUniform',0,-70.077279,70.077279 )'''
-
+'''
 
 #load(3, 0.0, -100000, 0.0,0,0,0)
 #load(4, 0.0, -1000, 0.0)
@@ -222,7 +235,7 @@ analysis('Static')
 integrator('LoadControl', 0.1)
 # Run Analysis
 analyze(10)
-
+'''
 # ------------------------------
 # Finally perform the analysis
 # ------------------------------
@@ -232,52 +245,19 @@ analyze(10)
 
 #opsplt.plot_deformedshape(Model="3DFrame", LoadCase="Gravity")
 
+      
+g = 9.81
+timeSeries('Path', 1, '-dt', 0.005, '-filePath','Matched_165-1.A.txt', '-factor', g*2)
+timeSeries('Path', 2, '-dt', 0.005, '-filePath','Matched_165-2.A.txt', '-factor', g*2)    
 
-
-  #%%
-
-EQ_sc = 2
-
-
-
-for i in range(114):#len(Sup_nodes)-1):
-    i = 1+i
-    #print(i)
-    timeSeries('Path', int(i+1), '-dt', 0.005, '-filePath','EQQ1_disp_1_'+str(i)+'.txt','-factor',  g*EQ_sc)
-    timeSeries('Path', int(i+115), '-dt', 0.005, '-filePath','EQQ1_disp_2_'+str(i)+'.txt','-factor',  g*EQ_sc)
-
-
-
-
-
-
-loadConst('-time', 0.0)
-
+# Create UniformExcitation load pattern
+# tag dir 
+pattern('UniformExcitation',  1,   1,  '-accel', 1)
+pattern('UniformExcitation',  2,   2,  '-accel', 2)
+'''
+maxNumIter = 10
 wipeAnalysis()
 constraints('Transformation')
-numberer('RCM')
-system('BandGeneral')
-
-
-
-pattern('MultipleSupport', 4)
-cc =0
-
-for i in range(len(EQ_rec)):#len(Sup_nodes)-1):
-    cc = cc +1
-    #timeSeries('Path', int(EQ_rec[i]), '-dt', 0.005, '-filePath','EQ_disp_1_'+str(EQ_rec[i])+'.txt','-factor', 200.0)
-    #timeSeries('Path', 102, '-dt', 0.005, '-filePath','EQ_disp_1_102.txt','-factor', 200.0)
-    groundMotion(cc,'Plain','-disp',int(EQ_rec[i])+1)
-    imposedMotion(int(Sup_nodes[i]),1,cc) # node, dof, gmTag
-    groundMotion(cc+732,'Plain','-disp',int(EQ_rec[i]+115))
-    imposedMotion(int(Sup_nodes[i]),2,cc+732) # node, dof, gmTag    
-
-    
-        
-
-
-
-'''constraints('Transformation')
 numberer('RCM')
 system('BandGeneral')'''
 #op.test('EnergyIncr', Tol, maxNumIter)
@@ -325,9 +305,9 @@ rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
 node_tags = getNodeTags()
 
 constraints('Transformation')
-numberer('RCM')
+numberer('Plain')
 system('UmfPack')
-test('NormDispIncr',+1.000000E-2,10)
+test('NormDispIncr',+1.000000E-4,40)
 algorithm('KrylovNewton')
 integrator('Newmark',+5.000000E-01,+2.500000E-01)
 analysis('Transient')
@@ -340,104 +320,11 @@ analyze(5176,0.005)
 endtime = datetime.now()
 print("runtime: "+ str(endtime-starttime))
 
-wipe()
-
 #disp = pd.DataFrame(pd.read_csv('Disp_trial_11192.out',delimiter=" ", header = None)).to_numpy() 
 #plt.figure() 
 #plt.plot(disp[1:5000,1])
 
 
+#%% Loading the disp and reac results
 
-     #%% Modal Analysis
-
-
-# calculate eigenvalues & print results     
-numEigen = 12
-eigenValues = eigen(numEigen)
-#PI = -np.cos(1.0)
-
-ome=[]
-per = []
-freq = []
-for eig in range(len(eigenValues)):
-    ome.append(np.sqrt(eigenValues[eig]))
-    per.append(2*np.pi/ome[-1])
-    freq.append(1/per[-1])
-#eigen(solver='-fullGenLapack', numb)
-
-recorder('Node', '-file', 'MODAL_Node_NodeEigen_EigenVec_1_PY.out', '-time','-nodeRange', 1, 1001, '-dof', 1, 2, 3, 4, 5, 6, 'eigen1')
-record()
-#create nodes
-#exec(open("Elements.py").read())
-#opsplt.plot_model()  # command from Get_Rendering module
-#opsv.plot_model()  # command from ops_vis module
-
-#%% Modal Analysis Drawing
-ele_20001 = pd.DataFrame(pd.read_csv('Element_f2_'+str(int(20000+1))+'.out',delimiter=" ", header = None)).to_numpy() 
-
- #%% Loading the disp and reac results
-
-disp_150 = pd.DataFrame(pd.read_csv('Disp_150_d2.out',delimiter=" ", header = None)).to_numpy() 
-disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
-reac_150 = pd.DataFrame(pd.read_csv('Reac_150_d2.out',delimiter=" ", header = None)).to_numpy() 
-reac_20150 = pd.DataFrame(pd.read_csv('Reac_20150_d2.out',delimiter=" ", header = None)).to_numpy() 
-ele_618 = pd.DataFrame(pd.read_csv('Element_d2_'+str(int(20000+618))+'.out',delimiter=" ", header = None)).to_numpy() 
-
-
-reac_152 = pd.DataFrame(pd.read_csv('Reac_152_r2.out', delimiter=" ", header = None)).to_numpy() 
-disp_152 = pd.DataFrame(pd.read_csv('Reac_152_d2.out', delimiter=" ", header = None)).to_numpy() 
-reac_20152 = pd.DataFrame(pd.read_csv('Reac_20152_r2.out',delimiter=" ", header = None)).to_numpy() 
-disp_10152 = pd.DataFrame(pd.read_csv('Reac_20152_d2.out',delimiter=" ", header = None)).to_numpy() 
-
-ele_2 = pd.DataFrame(pd.read_csv('Element_'+str(int(20000+152))+'.out',delimiter=" ", header = None)).to_numpy() 
-
-#%%
-#disp4761 = pd.DataFrame(pd.read_csv('Disp_trial_4761.out',delimiter=" ", header = None)).to_numpy() 
-plt.figure()
-plt.plot(disp_20150[:4900,4],ele_618[:4900,4])
-plt.title("Hysteresis of a hinge for Disp input 2 165_1 scaled by 3",fontname="Times New Roman",fontweight="bold")
-plt.xlabel("Rotation")
-plt.ylabel("Moment x")
-plt.savefig('Moment_Rotation2_20150_618_Disp_5.pdf')  
-
-#plt.figure()
-#plt.plot(disp[1:5000,1])
-
-#%%
-
-plt.figure()
-#plt.plot(ele_618[:4900,5])
-plt.plot(reac_150[:4900,5])
-plt.legend(['20150','150'])
-#plt.plot((disp_20150[:,4]))
- #%%
-plt.figure()
-plt.plot(ele_618[:,5])
-
-
-#%%
-
-
-ani = opsplt.animate_deformedshape(Model="GHB_bridge_model",LoadCase="EQ1", dt=10,tStart=0.0, tEnd=20, scale=10)
-from matplotlib.animation import PillowWriter
-writer = PillowWriter(fps=10)
-ani.save("GHB_exampletrOlder_010_Final.gif", writer=writer) 
-
-
-
- #%%
-i = 5
-disp5 = pd.DataFrame(pd.read_csv('Disp_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
-reac5 = pd.DataFrame(pd.read_csv('Reac_trial1_'+str(int(Nonl_nodes[i]+20000))+'.out',delimiter=" ", header = None)).to_numpy() 
-disp51 = pd.DataFrame(pd.read_csv('Disp_trial_'+str(Nonl_nodes[i])+'.out',delimiter=" ", header = None)).to_numpy() 
-reac51 = pd.DataFrame(pd.read_csv('Reac_trial_'+(str(Nonl_nodes[i]))+'.out',delimiter=" ", header = None)).to_numpy() 
-
-#plt.plot(disp5)
-
-#%%
-#ND = pd.DataFrame(pd.read_csv('GHB_bridge_model_ODB\EQ1\NodeDisp_All.out',delimiter=" ", header = None)).to_numpy()
-#input_parameters = (70.0, 500., 2.)
-#pf, sfac_a, tkt = input_parameters
-#opsv.plot_defo(1000,1, fmt_interp='b-', az_el=(6., 30.),fig_wi_he=(50,200))
-#%%
-opsplt.plot_model()
+disp_150 = pd.DataFrame(pd.read_csv('Disp_150Acc.out',delimiter=" ", header = None)).to_numpy() 
