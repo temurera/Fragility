@@ -326,11 +326,11 @@ ele_20001 = pd.DataFrame(pd.read_csv('Element_f2_'+str(int(20000+1))+'.out',deli
  #%% Loading the disp and reac results
  
 disp4 = np.zeros([len(Nonl_nodes),nPts+11,2]) 
-disp5 = np.zeros([len(Nonl_nodes),nPts+11,2]) 
+disp5 = np.zeros([len(Nonl_nodes),nPts+11,3]) 
 ele_res = np.zeros([len(Nonl_nodes),nPts+11,13])
 for jk in range(len(Nonl_nodes)):
     disp5[jk,:,:] = pd.DataFrame(pd.read_csv('Disp_'+str(20000+Nonl_nodes[jk])+'_d5.out',delimiter=" ", header = None)).to_numpy() 
-    disp4[jk,:,:] = pd.DataFrame(pd.read_csv('Disp_'+str(10000+Nonl_nodes[jk])+'_d4.out',delimiter=" ", header = None)).to_numpy() 
+    #disp4[jk,:,:] = pd.DataFrame(pd.read_csv('Disp_'+str(10000+Nonl_nodes[jk])+'_d4.out',delimiter=" ", header = None)).to_numpy() 
     ele_res[jk,:,:] = pd.DataFrame(pd.read_csv('Element_d2_'+str(int(pile_ele[jk]))+'.out',delimiter=" ", header = None)).to_numpy() 
 
 
@@ -338,8 +338,8 @@ for jk in range(len(Nonl_nodes)):
 
 for jk in range(len(Nonl_nodes)-10):
     plt.figure()
-    plt.plot(disp4[jk,:,1],ele_res[jk,:,5])
-
+    plt.plot(disp5[jk,:,2],ele_res[jk,:,5])
+#%%
 
 disp_150 = pd.DataFrame(pd.read_csv('Disp_150_d2.out',delimiter=" ", header = None)).to_numpy() 
 disp_20150 = pd.DataFrame(pd.read_csv('Disp_20150_d2.out',delimiter=" ", header = None)).to_numpy() 

@@ -65,7 +65,7 @@ exec(open("./Element_under_soil_bc_03_Trial_Disp.py").read())
 def rot2DSpringModel(eleID, nodeR, nodeC, K):
     #uniaxialMaterial('Bilin',eleID,K, asPos, asNeg, MyPos, MyNeg, LS, LK, LA, LD, cS, cK, cA, cD, th_pP, th_pN, th_pcP, th_pcN, ResP, ResN, th_uP, th_uN, DP, DN)
     #uniaxialMaterial('ElasticBilin',eleID,K*100, 0.001*K,0.01)
-    uniaxialMaterial('ElasticPP',eleID+10000,K*100, 0.01)
+    uniaxialMaterial('ElasticPP',eleID+10000,K*1000, 0.001)
     #uniaxialMaterial('Elastic',eleID,K*100)
     element('zeroLength', eleID+10000, nodeR, nodeC, '-mat', eleID+10000, '-dir', 4)
     element('zeroLength', eleID+20000, nodeR, nodeC, '-mat', eleID+10000, '-dir', 5)
@@ -94,20 +94,13 @@ recorder('Node', '-file', 'Disp_trial_100.out', '-time','-node', 100, '-dof', 1,
 recorder('Node', '-file', 'Disp_trial_4761.out', '-time','-node', 4761, '-dof', 1,2,3,4,5,6 , 'disp')
 recorder('Node', '-file', 'Disp_trial_151.out', '-time','-node', 151, '-dof', 1,2,3,4,5,6 , 'disp')
 '''
-recorder('Node', '-file', 'Disp_150_d2.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Disp_20150_d2.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'disp')
-recorder('Node', '-file', 'Reac_150_d2.out', '-time','-node', 99, '-dof', 1,2,3,4,5,6 , 'reaction')
-recorder('Node', '-file', 'Reac_20150_d2.out', '-time','-node', 20099, '-dof', 1,2,3,4,5,6 , 'reaction')
+
+recorder('Node', '-file', 'Disp_3.out', '-time','-node', 3, '-dof', 1,2,3,4,5,6 , 'disp')
 
 recorder('Node', '-file', 'Reac_152_r2.out', '-time','-node', 152, '-dof', 4 , 'reaction')
 recorder('Node', '-file', 'Reac_152_d2.out', '-time','-node', 152, '-dof', 4 , 'disp')
 recorder('Node', '-file', 'Reac_20152_r2.out', '-time','-node', 20152, '-dof', 4 , 'reaction')
 recorder('Node', '-file', 'Reac_20152_d2.out', '-time','-node', 20152, '-dof', 4 , 'disp')
-
-recorder('Element', '-file', 'Element_'+str(int(20000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 20152, 'force' )
-recorder('Element', '-file', 'Element_'+str(int(10000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 10152, 'force' )
-recorder('Element', '-file', 'Element_d'+str(int(20000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 20152, 'disp' )
-recorder('Element', '-file', 'Element_d'+str(int(10000+152))+'.out',  '-time', '-closeOnWrite', '-ele', 10152, 'disp' )
 
 #i = 0
 recorder('Element', '-file', 'Element_d2_'+str(int(20000+618))+'.out',  '-time', '-closeOnWrite', '-ele', 618, 'force' )
@@ -247,13 +240,13 @@ analyze(10)
 
       
 g = 9.81
-timeSeries('Path', 1, '-dt', 0.005, '-filePath','Matched_165-1.A.txt', '-factor', g*2)
-timeSeries('Path', 2, '-dt', 0.005, '-filePath','Matched_165-2.A.txt', '-factor', g*2)    
+timeSeries('Path', 1, '-dt', 0.005, '-filePath','Matched_1605-1..txt', '-factor', g*2)
+timeSeries('Path', 2, '-dt', 0.005, '-filePath','Matched_1605-2..txt', '-factor', g*2)    
 
 # Create UniformExcitation load pattern
 # tag dir 
-pattern('UniformExcitation',  1,   1,  '-accel', 1)
-pattern('UniformExcitation',  2,   2,  '-accel', 2)
+pattern('UniformExcitation',  1,   2,  '-accel', 1)
+pattern('UniformExcitation',  2,   1,  '-accel', 2)
 '''
 maxNumIter = 10
 wipeAnalysis()
@@ -327,4 +320,26 @@ print("runtime: "+ str(endtime-starttime))
 
 #%% Loading the disp and reac results
 
-disp_150 = pd.DataFrame(pd.read_csv('Disp_150Acc.out',delimiter=" ", header = None)).to_numpy() 
+Disp_3 = pd.DataFrame(pd.read_csv('Disp_3.out',delimiter=" ", header = None)).to_numpy() 
+
+
+#%% 
+
+plt.figure()
+plt.plot(Disp_3[:,0],Disp_3[:,1])
+plt.plot(Disp_3[:,0],Disp_3[:,2])
+plt.legend(['x','y'])
+
+plt.title("Displacement records for mid point of main span",fontname="Times New Roman",fontweight="bold")
+plt.xlabel("Time")
+plt.ylabel("Displacement")
+plt.savefig('Node 3 Displacement.pdf')  
+
+
+
+
+
+
+
+
+
